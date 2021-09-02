@@ -52,21 +52,29 @@ Go!`
 	})
 }
 
+type spyTime struct {
+	durationSlept time.Duration
+}
+
+func (s *spyTime) Sleep(duration time.Duration) {
+	s.durationSlept = s.durationSlept + duration
+}
+
+// ConfigurableSleeper allows to set the sleep duration
 type ConfigurableSleeper struct {
-	sleepTime     time.Duration
-	sleepDuration time.Duration
-	sleeper       Sleeper
+	sleep    func(time.Duration)
+	duration time.Duration
 }
 
 func (s *ConfigurableSleeper) Sleep() {
-	s.sleepDuration = s.sleepDuration + s.sleepTime
-	s.sleeper.Sleep()
+	s.sleep(s.duration)
 }
 
-func TestConfigurableSleeper(t *testing.T) {
+func TestSleepDuration(t *testing.T) {
 	sleepTime := 5 * time.Second
+	spyTime := &spyTime{}
 	spy := &SpyCountdownOperations{}
-	timer := &ConfigurableSleeper{sleepTime, 0, spy}
+	timer := &ConfigurableSleeper{spyTime.Sleep, sleepTime}
 	Countdown(spy, timer)
-	assert.Equal(t, 20*time.Second, timer.sleepDuration)
+	assert.Equal(t, 20*time.Second, spyTime.durationSlept)
 }
