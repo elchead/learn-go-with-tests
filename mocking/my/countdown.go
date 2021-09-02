@@ -4,15 +4,29 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
 
-func Countdown(writer io.Writer) {
+type Sleeper interface {
+	Sleep()
+}
+
+func Countdown(writer io.Writer, time Sleeper) {
 	for i := 3; i > 0; i-- {
-		fmt.Fprintf(writer, "%d\n", i)
+		time.Sleep()
+		fmt.Fprintln(writer, i)
 	}
+	time.Sleep()
 	fmt.Fprint(writer, "Go!")
 }
 
+type RealTime struct{}
+
+func (r *RealTime) Sleep() {
+	time.Sleep(1 * time.Second)
+}
+
 func main() {
-	Countdown(os.Stdout)
+	timer := &RealTime{}
+	Countdown(os.Stdout, timer)
 }
