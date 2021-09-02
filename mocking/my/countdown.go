@@ -16,26 +16,22 @@ type SleepWriter interface {
 	io.Writer
 }
 
-func Countdown(writer SleepWriter) {
+func Countdown(writer io.Writer, time Sleeper) {
 	for i := 3; i > 0; i-- {
-		writer.Sleep()
+		time.Sleep()
 		fmt.Fprintln(writer, i)
 	}
-	writer.Sleep()
+	time.Sleep()
 	fmt.Fprint(writer, "Go!")
 }
 
-type RealWriter struct{}
+type RealTime struct{}
 
-func (r *RealWriter) Sleep() {
+func (r *RealTime) Sleep() {
 	time.Sleep(1 * time.Second)
 }
 
-func (r *RealWriter) Write(p []byte) (int, error) {
-	return os.Stdout.Write(p)
-}
-
 func main() {
-	writer := &RealWriter{}
-	Countdown(writer)
+	timer := &RealTime{}
+	Countdown(os.Stdout, timer)
 }
