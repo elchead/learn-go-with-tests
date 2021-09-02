@@ -6,11 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPerimeter(t *testing.T) {
-	width := 10.0
-	height := 2.0
-	res := Perimeter(width, height)
-	assert.Equal(t, 24.0, res)
+func TestRectangle(t *testing.T) {
+	rect := Rectangle{Width: 10.0, Height: 2.0}
+	assert.Equal(t, 24.0, rect.Perimeter())
 }
 
 func TestArea(t *testing.T) {
