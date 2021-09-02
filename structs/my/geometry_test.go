@@ -12,11 +12,12 @@ func TestRectangle(t *testing.T) {
 }
 
 func TestArea(t *testing.T) {
-	rect := Rectangle{Width: 2.0, Height: 4.0}
-	assert.Equal(t, 8.0, rect.Area())
-}
-
-func TestCircleArea(t *testing.T) {
-	circle := Circle{Radius: 1.0}
-	assert.Equal(t, 3.14, circle.Area())
+	t.Run("Rectangle area", func(t *testing.T) {
+		rect := Rectangle{Width: 2.0, Height: 4.0}
+		assert.Equal(t, 8.0, rect.Area())
+	})
+	t.Run("Circle area", func(t *testing.T) {
+		circle := Circle{Radius: 1.0}
+		assert.Equal(t, 3.14, circle.Area())
+	})
 }
