@@ -12,6 +12,6 @@ func TestRectangle(t *testing.T) {
 }
 
 func TestArea(t *testing.T) {
-	res := Area(2.0, 4.0)
-	assert.Equal(t, 8.0, res)
+	rect := Rectangle{Width: 2.0, Height: 4.0}
+	assert.Equal(t, 8.0, rect.Area())
 }
