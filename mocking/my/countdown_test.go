@@ -73,8 +73,9 @@ func (s *ConfigurableSleeper) Sleep() {
 func TestSleepDuration(t *testing.T) {
 	sleepTime := 5 * time.Second
 	spyTime := &spyTime{}
-	spy := &SpyCountdownOperations{}
 	timer := &ConfigurableSleeper{spyTime.Sleep, sleepTime}
-	Countdown(spy, timer)
-	assert.Equal(t, 20*time.Second, spyTime.durationSlept)
+	timer.Sleep()
+	assert.Equal(t, sleepTime, spyTime.durationSlept)
+	timer.Sleep()
+	assert.Equal(t, 2*sleepTime, spyTime.durationSlept)
 }
