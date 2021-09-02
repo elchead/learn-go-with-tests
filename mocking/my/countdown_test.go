@@ -8,6 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const sleep = "sleep"
+const write = "write"
+
 type SpySleeper struct {
 	Calls int
 }
@@ -15,9 +18,6 @@ type SpySleeper struct {
 func (s *SpySleeper) Sleep() {
 	s.Calls++
 }
-
-const sleep = "sleep"
-const write = "write"
 
 type SpyCountdownOperations struct {
 	Calls []string
@@ -33,7 +33,6 @@ func (s *SpyCountdownOperations) Write(p []byte) (n int, err error) {
 }
 
 func TestCountdown(t *testing.T) {
-	// print 3, then 1s later 2, then 1 and then Go!
 	t.Run("prints 3 to Go!", func(t *testing.T) {
 		buffer := &bytes.Buffer{}
 		spy := &SpyCountdownOperations{}
@@ -58,16 +57,6 @@ type spyTime struct {
 
 func (s *spyTime) Sleep(duration time.Duration) {
 	s.durationSlept = s.durationSlept + duration
-}
-
-// ConfigurableSleeper allows to set the sleep duration
-type ConfigurableSleeper struct {
-	sleep    func(time.Duration)
-	duration time.Duration
-}
-
-func (s *ConfigurableSleeper) Sleep() {
-	s.sleep(s.duration)
 }
 
 func TestSleepDuration(t *testing.T) {

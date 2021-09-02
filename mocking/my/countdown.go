@@ -11,11 +11,6 @@ type Sleeper interface {
 	Sleep()
 }
 
-type SleepWriter interface {
-	Sleeper
-	io.Writer
-}
-
 func Countdown(writer io.Writer, time Sleeper) {
 	for i := 3; i > 0; i-- {
 		time.Sleep()
@@ -25,13 +20,17 @@ func Countdown(writer io.Writer, time Sleeper) {
 	fmt.Fprint(writer, "Go!")
 }
 
-type RealTime struct{}
+// ConfigurableSleeper allows to set the sleep duration
+type ConfigurableSleeper struct {
+	sleep    func(time.Duration)
+	duration time.Duration
+}
 
-func (r *RealTime) Sleep() {
-	time.Sleep(1 * time.Second)
+func (s *ConfigurableSleeper) Sleep() {
+	s.sleep(s.duration)
 }
 
 func main() {
-	timer := &RealTime{}
+	timer := &ConfigurableSleeper{time.Sleep, 2 * time.Second} //&RealTime{}
 	Countdown(os.Stdout, timer)
 }
