@@ -12,3 +12,8 @@ func TestPerimeter(t *testing.T) {
 	res := Perimeter(width, height)
 	assert.Equal(t, 24.0, res)
 }
+
+func TestArea(t *testing.T) {
+	res := Area(2.0, 4.0)
+	assert.Equal(t, 8.0, res)
+}
