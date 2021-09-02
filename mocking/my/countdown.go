@@ -11,22 +11,31 @@ type Sleeper interface {
 	Sleep()
 }
 
-func Countdown(writer io.Writer, time Sleeper) {
+type SleepWriter interface {
+	Sleeper
+	io.Writer
+}
+
+func Countdown(writer SleepWriter) {
 	for i := 3; i > 0; i-- {
-		time.Sleep()
+		writer.Sleep()
 		fmt.Fprintln(writer, i)
 	}
-	time.Sleep()
+	writer.Sleep()
 	fmt.Fprint(writer, "Go!")
 }
 
-type RealTime struct{}
+type RealWriter struct{}
 
-func (r *RealTime) Sleep() {
+func (r *RealWriter) Sleep() {
 	time.Sleep(1 * time.Second)
 }
 
+func (r *RealWriter) Write(p []byte) (int, error) {
+	return os.Stdout.Write(p)
+}
+
 func main() {
-	timer := &RealTime{}
-	Countdown(os.Stdout, timer)
+	writer := &RealWriter{}
+	Countdown(writer)
 }
