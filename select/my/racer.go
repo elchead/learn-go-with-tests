@@ -1,15 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
-
-func timeForRequest(url string) time.Duration {
-	start := time.Now()
-	http.Get(url)
-	return time.Since(start)
-}
 
 func ping(url string) chan struct{} {
 	ch := make(chan struct{})
@@ -20,11 +15,13 @@ func ping(url string) chan struct{} {
 	return ch
 }
 
-func Racer(url1 string, url2 string) string {
+func Racer(url1 string, url2 string, timeout time.Duration) (string, error) {
 	select {
 	case <-ping(url1):
-		return url1
+		return url1, nil
 	case <-ping(url2):
-		return url2
+		return url2, nil
+	case <-time.After(timeout):
+		return "", fmt.Errorf("timed out")
 	}
 }

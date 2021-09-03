@@ -17,17 +17,32 @@ func makeDelayedServer(duration time.Duration) *httptest.Server {
 }
 
 func TestRacer(t *testing.T) {
+	t.Run("should return faster url", func(t *testing.T) {
+		slowServer := makeDelayedServer(20 * time.Millisecond)
+		fastServer := makeDelayedServer(1 * time.Millisecond)
+		slowURL := slowServer.URL
+		fastURL := fastServer.URL
+		want := fastURL
+		got, err := Racer(slowURL, fastURL, 1*time.Second)
 
-	slowServer := makeDelayedServer(20 * time.Millisecond)
-	fastServer := makeDelayedServer(1 * time.Millisecond)
-	slowURL := slowServer.URL
-	fastURL := fastServer.URL
-	want := fastURL
-	got := Racer(slowURL, fastURL)
+		assert.Equal(t, want, got)
+		assert.NoError(t, err)
+		defer func() {
+			slowServer.Close()
+			fastServer.Close()
+		}()
+	})
+	t.Run("should timeout", func(t *testing.T) {
+		slowServer := makeDelayedServer(2 * time.Second)
+		fastServer := makeDelayedServer(1 * time.Second)
+		slowURL := slowServer.URL
+		fastURL := fastServer.URL
+		_, err := Racer(slowURL, fastURL, 20*time.Millisecond)
 
-	assert.Equal(t, want, got)
-	defer func() {
-		slowServer.Close()
-		fastServer.Close()
-	}()
+		assert.Error(t, err)
+		defer func() {
+			slowServer.Close()
+			fastServer.Close()
+		}()
+	})
 }
