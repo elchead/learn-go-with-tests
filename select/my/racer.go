@@ -11,12 +11,20 @@ func timeForRequest(url string) time.Duration {
 	return time.Since(start)
 }
 
+func ping(url string) chan struct{} {
+	ch := make(chan struct{})
+	go func() {
+		http.Get(url)
+		close(ch)
+	}()
+	return ch
+}
+
 func Racer(url1 string, url2 string) string {
-	time1 := timeForRequest(url1)
-	time2 := timeForRequest(url2)
-	if time1 > time2 {
-		return url2
-	} else {
+	select {
+	case <-ping(url1):
 		return url1
+	case <-ping(url2):
+		return url2
 	}
 }
