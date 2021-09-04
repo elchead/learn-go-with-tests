@@ -7,6 +7,14 @@ import (
 )
 
 func TestRomanNumerals(t *testing.T) {
-	res, _ := ConvertToRoman(1)
-	assert.Equal(t, "I", res)
+	t.Run("convert 1 to I", func(t *testing.T) {
+		res, err := ConvertToRoman(1)
+		assert.Equal(t, "I", res)
+		assert.NoError(t, err)
+	})
+	t.Run("convert 2 to II", func(t *testing.T) {
+		res, err := ConvertToRoman(2)
+		assert.Equal(t, "II", res)
+		assert.NoError(t, err)
+	})
 }
