@@ -2,12 +2,13 @@ package main
 
 import (
 	"testing"
+	"testing/quick"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var cases = []struct {
-	Arabic int
+	Arabic uint16
 	Roman  string
 }{
 	{3, "III"},
@@ -40,5 +41,20 @@ func TestConvertingToArabic(t *testing.T) {
 			res := ConvertToArabic(c.Roman)
 			assert.Equal(t, c.Arabic, res)
 		})
+	}
+}
+
+func TestPropertiesOfConversion(t *testing.T) {
+	assertion := func(arabic uint16) bool {
+		if arabic > 3999 {
+			return true
+		}
+		roman := ConvertToRoman(arabic)
+		fromRoman := ConvertToArabic(roman)
+		return fromRoman == arabic
+	}
+
+	if err := quick.Check(assertion, nil); err != nil {
+		t.Error("failed checks", err)
 	}
 }

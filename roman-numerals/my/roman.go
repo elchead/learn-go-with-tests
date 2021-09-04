@@ -7,12 +7,12 @@ import (
 var allLiterals = romanNumerals{{1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}}
 
 type romanNumeral struct {
-	Value  int
+	Value  uint16
 	Symbol string
 }
 type romanNumerals []romanNumeral
 
-func (pairs romanNumerals) ValueOf(symbols ...byte) int {
+func (pairs romanNumerals) ValueOf(symbols ...byte) uint16 {
 	symbol := string(symbols)
 	for _, pair := range pairs {
 		if symbol == pair.Symbol {
@@ -54,14 +54,14 @@ func (w windowedRoman) Symbols() (symbols [][]byte) {
 	return
 }
 
-func ConvertToArabic(roman string) int {
-	var result int
+func ConvertToArabic(roman string) uint16 {
+	var result uint16
 	for _, symbols := range windowedRoman(roman).Symbols() {
 		result += allLiterals.ValueOf(symbols...)
 	}
 	return result
 }
-func ConvertToRoman(arabic int) string {
+func ConvertToRoman(arabic uint16) string {
 	var result strings.Builder
 	for _, numeral := range allLiterals {
 		for arabic >= numeral.Value {
