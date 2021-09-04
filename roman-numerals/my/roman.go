@@ -40,7 +40,7 @@ func ConvertToArabic(roman string) int {
 				result++
 			}
 		} else {
-			result++
+			result += allLiterals.ValueOf(string(roman[i]))
 		}
 	}
 	return result

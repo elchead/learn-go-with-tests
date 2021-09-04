@@ -35,7 +35,7 @@ func TestConvertingToRoman(t *testing.T) {
 }
 
 func TestConvertingToArabic(t *testing.T) {
-	for _, c := range cases[:3] {
+	for _, c := range cases {
 		t.Run("convert", func(t *testing.T) {
 			res := ConvertToArabic(c.Roman)
 			assert.Equal(t, c.Arabic, res)
