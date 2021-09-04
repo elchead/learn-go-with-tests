@@ -4,14 +4,18 @@ import (
 	"strings"
 )
 
+type RomanLiterals struct {
+	Value  int
+	Symbol string
+}
+
 func ConvertToRoman(arabic int) string {
 	var result strings.Builder
-	switch {
-	case arabic == 4:
-		result.WriteString("IV")
-	case arabic < 4:
-		for i := 0; i < arabic; i++ {
-			result.WriteString("I")
+	allLiterals := []RomanLiterals{{10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}}
+	for _, numeral := range allLiterals {
+		for arabic >= numeral.Value {
+			result.WriteString(numeral.Symbol)
+			arabic -= numeral.Value
 		}
 	}
 	return result.String()
