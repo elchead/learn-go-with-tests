@@ -8,22 +8,21 @@ import (
 
 func TestRomanNumerals(t *testing.T) {
 	cases := []struct {
-		Description string
-		Arabic      int
-		Want        string
+		Arabic int
+		Want   string
 	}{
-		{"convert 3 to III", 3, "III"},
-		{"convert 4 to IV", 4, "IV"},
-		{"convert 5 to V", 5, "V"},
-		{"convert 7 to VII", 7, "VII"},
-		{"convert 9", 9, "IX"},
-		{"convert 11", 11, "XI"},
-		{"convert 39", 39, "XXXIX"},
-		{"convert 56", 56, "LVI"},
-		{"convert 1984", 1984, "MCMLXXXIV"},
+		{3, "III"},
+		{4, "IV"},
+		{5, "V"},
+		{7, "VII"},
+		{9, "IX"},
+		{11, "XI"},
+		{39, "XXXIX"},
+		{56, "LVI"},
+		{1984, "MCMLXXXIV"},
 	}
 	for _, c := range cases {
-		t.Run(c.Description, func(t *testing.T) {
+		t.Run("convert", func(t *testing.T) {
 			res := ConvertToRoman(c.Arabic)
 			assert.Equal(t, c.Want, res)
 		})
