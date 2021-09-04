@@ -4,13 +4,15 @@ import (
 	"strings"
 )
 
-type RomanLiterals struct {
+var allLiterals = romanNumerals{{1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}}
+
+type romanNumeral struct {
 	Value  int
 	Symbol string
 }
-type allRomanNumerals []RomanLiterals
+type romanNumerals []romanNumeral
 
-func (pairs allRomanNumerals) ValueOf(symbols ...byte) int {
+func (pairs romanNumerals) ValueOf(symbols ...byte) int {
 	symbol := string(symbols)
 	for _, pair := range pairs {
 		if symbol == pair.Symbol {
@@ -20,28 +22,42 @@ func (pairs allRomanNumerals) ValueOf(symbols ...byte) int {
 	return 0
 }
 
-func couldBeSubtractive(i int, roman string) bool {
-	currentSymbol := roman[i]
-	isSubtractiveSymbol := currentSymbol == 'I' || currentSymbol == 'X' || currentSymbol == 'C'
-	return i+1 < len(roman) && isSubtractiveSymbol
+func (pairs romanNumerals) Exists(symbols ...byte) bool {
+	symbol := string(symbols)
+	for _, pair := range pairs {
+		if symbol == pair.Symbol {
+			return true
+		}
+	}
+	return false
 }
 
-var allLiterals = allRomanNumerals{{1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}}
+func isSubtractive(currentSymbol byte) bool {
+	return currentSymbol == 'I' || currentSymbol == 'X' || currentSymbol == 'C'
+
+}
+
+type windowedRoman string
+
+func (w windowedRoman) Symbols() (symbols [][]byte) {
+	for i := 0; i < len(w); i++ {
+		symbol := w[i]
+		notAtEnd := i+1 < len(w)
+
+		if notAtEnd && isSubtractive(symbol) && allLiterals.Exists(symbol, w[i+1]) {
+			symbols = append(symbols, []byte{symbol, w[i+1]})
+			i++
+		} else {
+			symbols = append(symbols, []byte{symbol})
+		}
+	}
+	return
+}
 
 func ConvertToArabic(roman string) int {
 	var result int
-	for i := 0; i < len(roman); i++ {
-		if couldBeSubtractive(i, roman) {
-			nextSymbol := roman[i+1]
-			if value := allLiterals.ValueOf(roman[i], nextSymbol); value != 0 {
-				i++
-				result += value
-			} else {
-				result += allLiterals.ValueOf(roman[i])
-			}
-		} else {
-			result += allLiterals.ValueOf(roman[i])
-		}
+	for _, symbols := range windowedRoman(roman).Symbols() {
+		result += allLiterals.ValueOf(symbols...)
 	}
 	return result
 }
