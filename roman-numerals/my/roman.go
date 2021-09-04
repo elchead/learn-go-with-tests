@@ -21,8 +21,9 @@ func (pairs allRomanNumerals) ValueOf(symbols ...byte) int {
 }
 
 func couldBeSubtractive(i int, roman string) bool {
-	symbol := roman[i]
-	return i+1 < len(roman) && symbol == 'I'
+	currentSymbol := roman[i]
+	isSubtractiveSymbol := currentSymbol == 'I' || currentSymbol == 'X' || currentSymbol == 'C'
+	return i+1 < len(roman) && isSubtractiveSymbol
 }
 
 var allLiterals = allRomanNumerals{{1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"}, {90, "XC"}, {50, "L"}, {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"}, {1, "I"}}
@@ -32,12 +33,11 @@ func ConvertToArabic(roman string) int {
 	for i := 0; i < len(roman); i++ {
 		if couldBeSubtractive(i, roman) {
 			nextSymbol := roman[i+1]
-			value := allLiterals.ValueOf(roman[i], nextSymbol)
-			if value != 0 {
+			if value := allLiterals.ValueOf(roman[i], nextSymbol); value != 0 {
 				i++
 				result += value
 			} else {
-				result++
+				result += allLiterals.ValueOf(roman[i])
 			}
 		} else {
 			result += allLiterals.ValueOf(roman[i])
