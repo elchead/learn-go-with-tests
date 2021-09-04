@@ -19,6 +19,8 @@ func TestRomanNumerals(t *testing.T) {
 		{"convert 9", 9, "IX"},
 		{"convert 11", 11, "XI"},
 		{"convert 39", 39, "XXXIX"},
+		{"convert 56", 56, "LVI"},
+		{"convert 1984", 1984, "MCMLXXXIV"},
 	}
 	for _, c := range cases {
 		t.Run(c.Description, func(t *testing.T) {
