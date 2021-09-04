@@ -10,9 +10,10 @@ type RomanLiterals struct {
 }
 type allRomanNumerals []RomanLiterals
 
-func (pairs allRomanNumerals) ValueOf(roman string) int {
+func (pairs allRomanNumerals) ValueOf(symbols ...byte) int {
+	symbol := string(symbols)
 	for _, pair := range pairs {
-		if roman == pair.Symbol {
+		if symbol == pair.Symbol {
 			return pair.Value
 		}
 	}
@@ -31,8 +32,7 @@ func ConvertToArabic(roman string) int {
 	for i := 0; i < len(roman); i++ {
 		if couldBeSubtractive(i, roman) {
 			nextSymbol := roman[i+1]
-			potentialNumber := string([]byte{roman[i], nextSymbol})
-			value := allLiterals.ValueOf(potentialNumber)
+			value := allLiterals.ValueOf(roman[i], nextSymbol)
 			if value != 0 {
 				i++
 				result += value
@@ -40,7 +40,7 @@ func ConvertToArabic(roman string) int {
 				result++
 			}
 		} else {
-			result += allLiterals.ValueOf(string(roman[i]))
+			result += allLiterals.ValueOf(roman[i])
 		}
 	}
 	return result

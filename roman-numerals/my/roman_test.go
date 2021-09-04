@@ -22,7 +22,7 @@ var cases = []struct {
 }
 
 func TestAllValueOf(t *testing.T) {
-	res := allLiterals.ValueOf("X")
+	res := allLiterals.ValueOf('X')
 	assert.Equal(t, 10, res)
 }
 func TestConvertingToRoman(t *testing.T) {
