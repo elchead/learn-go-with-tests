@@ -1,15 +1,18 @@
 package main
 
-import "errors"
+import (
+	"strings"
+)
 
-func ConvertToRoman(arabic int) (string, error) {
+func ConvertToRoman(arabic int) string {
+	var result strings.Builder
 	switch {
-	case arabic < 5:
-		var result string
+	case arabic == 4:
+		result.WriteString("IV")
+	case arabic < 4:
 		for i := 0; i < arabic; i++ {
-			result += "I"
+			result.WriteString("I")
 		}
-		return result, nil
 	}
-	return "", errors.New("No roman literal found")
+	return result.String()
 }
