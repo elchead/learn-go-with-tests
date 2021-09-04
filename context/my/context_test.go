@@ -16,7 +16,7 @@ type SpyStore struct {
 	cancelled bool
 }
 
-func (s SpyStore) Fetch(ctx context.Context) (string, error) {
+func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 	data := make(chan string, 1)
 	go func() {
 		var result string
@@ -65,29 +65,29 @@ func (s *SpyResponseWriter) WriteHeader(statusCode int) {
 func TestServer(t *testing.T) {
 	t.Run("server returns data", func(t *testing.T) {
 		data := "hello"
-		store := SpyStore{data: data}
-		svr := Server(&store)
+		store := &SpyStore{data: data}
+		svr := Server(store)
 		request := httptest.NewRequest(http.MethodGet, "/", nil)
 		response := httptest.NewRecorder()
 		svr.ServeHTTP(response, request)
 		assert.Equal(t, data, response.Body.String())
 		assert.Equal(t, false, store.cancelled)
 	})
-	// t.Run("store cancels work if request is canceled", func(t *testing.T) {
-	// 	data := "hello"
-	// 	store := SpyStore{data: data, cancelled: false}
-	// 	svr := Server(&store)
-	// 	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	t.Run("store cancels work if request is canceled", func(t *testing.T) {
+		data := "hello"
+		store := &SpyStore{data: data, cancelled: false}
+		svr := Server(store)
+		request := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	// 	cancellingCtx, cancel := context.WithCancel(request.Context())
-	// 	time.AfterFunc(5*time.Millisecond, cancel)
-	// 	request = request.WithContext(cancellingCtx)
+		cancellingCtx, cancel := context.WithCancel(request.Context())
+		time.AfterFunc(5*time.Millisecond, cancel)
+		request = request.WithContext(cancellingCtx)
 
-	// 	response := httptest.NewRecorder()
-	// 	svr.ServeHTTP(response, request)
+		response := httptest.NewRecorder()
+		svr.ServeHTTP(response, request)
 
-	// 	assert.Equal(t, true, store.cancelled)
-	// })
+		assert.Equal(t, true, store.cancelled)
+	})
 	t.Run("if cancelled, no response is written", func(t *testing.T) {
 		data := "hello"
 		store := SpyStore{data: data, cancelled: false}
