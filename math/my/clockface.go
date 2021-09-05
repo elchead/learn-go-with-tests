@@ -10,11 +10,19 @@ type Point struct {
 	Y float64
 }
 
-func SecondHand(time time.Time) Point {
-	sec := time.Second()
-	len := 1. //90.
+func secondHandPointUnitCircle(t time.Time) Point {
+	sec := t.Second()
 	angle := secondsInRadians(sec)
-	return Point{X: len * math.Sin(angle), Y: len * math.Cos(angle)}
+	return Point{X: math.Sin(angle), Y: math.Cos(angle)}
+}
+
+func SecondHand(time time.Time) Point {
+	p := secondHandPointUnitCircle(time)
+	len := 90.
+	p = Point{p.X * len, p.Y * len} // scale
+	p = Point{p.X, -p.Y}            // flip
+	p = Point{p.X + 150, p.Y + 150} // translate
+	return p
 }
 
 func secondsInRadians(seconds int) float64 {
