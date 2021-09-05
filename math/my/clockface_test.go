@@ -34,7 +34,7 @@ func TestSecondHandOnUnitCircle(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run("test", func(t *testing.T) {
-			got := SecondHand(c.time)
+			got := secondHandPoint(c.time)
 			assert.Equal(t, true, roughlyEqualPoint(got, c.point))
 		})
 	}
@@ -44,13 +44,13 @@ func TestSecondHand(t *testing.T) {
 	t.Run("at 0 seconds", func(t *testing.T) {
 		tm := time.Date(1337, time.January, 1, 0, 0, 0, 0, time.UTC)
 		want := Point{X: 150, Y: 150 - 90}
-		got := SecondHand(tm)
+		got := secondHandPoint(tm)
 		assert.Equal(t, want, got)
 	})
 	t.Run("at 30 seconds", func(t *testing.T) {
 		tm := time.Date(1337, time.January, 1, 0, 0, 30, 0, time.UTC)
 		want := Point{X: 150, Y: 150 + 90}
-		got := SecondHand(tm)
+		got := secondHandPoint(tm)
 		assert.Equal(t, want, got)
 	})
 }

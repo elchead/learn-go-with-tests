@@ -16,7 +16,7 @@ func secondHandPointUnitCircle(t time.Time) Point {
 	return Point{X: math.Sin(angle), Y: math.Cos(angle)}
 }
 
-func SecondHand(time time.Time) Point {
+func secondHandPoint(time time.Time) Point {
 	p := secondHandPointUnitCircle(time)
 	len := 90.
 	p = Point{p.X * len, p.Y * len} // scale
