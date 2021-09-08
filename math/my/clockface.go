@@ -18,10 +18,6 @@ func secondHandPointUnitCircle(t time.Time) Point {
 
 func secondHandPoint(time time.Time) Point {
 	p := secondHandPointUnitCircle(time)
-	len := 90.
-	p = Point{p.X * len, p.Y * len} // scale
-	p = Point{p.X, -p.Y}            // flip
-	p = Point{p.X + 150, p.Y + 150} // translate
 	return p
 }
 
