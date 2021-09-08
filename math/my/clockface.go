@@ -24,3 +24,7 @@ func secondHandPoint(time time.Time) Point {
 func secondsInRadians(seconds int) float64 {
 	return math.Pi / (30. / float64(seconds)) // arrange to avoid arithmetic error
 }
+
+func minutesInRadians(t time.Time) float64 {
+	return math.Pi/(30./float64(t.Minute())) + float64(t.Second())*math.Pi/(30.*60) // arrange to avoid arithmetic error
+}
