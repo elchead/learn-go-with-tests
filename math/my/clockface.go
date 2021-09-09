@@ -11,8 +11,10 @@ type Point struct {
 }
 
 func secondHandPointUnitCircle(t time.Time) Point {
-	sec := t.Second()
-	angle := secondsInRadians(sec)
+	return angleToPoint(secondsInRadians(t.Second()))
+}
+
+func angleToPoint(angle float64) Point {
 	return Point{X: math.Sin(angle), Y: math.Cos(angle)}
 }
 
@@ -21,10 +23,14 @@ func secondHandPoint(time time.Time) Point {
 	return p
 }
 
+func minuteHandPoint(t time.Time) Point {
+	return angleToPoint(minutesInRadians(t))
+}
+
 func secondsInRadians(seconds int) float64 {
 	return math.Pi / (30. / float64(seconds)) // arrange to avoid arithmetic error
 }
 
 func minutesInRadians(t time.Time) float64 {
-	return math.Pi/(30./float64(t.Minute())) + float64(t.Second())*math.Pi/(30.*60) // arrange to avoid arithmetic error
+	return math.Pi/(30./float64(t.Minute())) + secondsInRadians(t.Second())/60 // arrange to avoid arithmetic error
 }
