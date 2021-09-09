@@ -10,11 +10,13 @@ import (
 type Post struct {
 	Title       string
 	Description string
+	Tags        string
 }
 
 const (
 	titleSeparator       = "Title: "
 	descriptionSeparator = "Description: "
+	tagsSeparator        = "Tags: "
 )
 
 func getPost(fileSystem fs.FS, filename string) (Post, error) {
@@ -33,9 +35,10 @@ func newPost(f io.Reader) (Post, error) {
 		return strings.TrimPrefix(scanner.Text(), tagName)
 	}
 
-	title := readMetaLine(titleSeparator)             //[len(titleSeparator):]
-	description := readMetaLine(descriptionSeparator) //[len(descriptionSepardescriptionSeparator):]
-	return Post{Title: title, Description: description}, nil
+	title := readMetaLine(titleSeparator)
+	description := readMetaLine(descriptionSeparator)
+	tags := readMetaLine(tagsSeparator)
+	return Post{Title: title, Description: description, Tags: tags}, nil
 }
 
 func NewPostsFromFS(fileSystem fs.FS) ([]Post, error) {

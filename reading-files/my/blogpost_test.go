@@ -19,9 +19,11 @@ func (s StubFailingFS) Open(name string) (fs.File, error) {
 func TestPostFromFolder(t *testing.T) {
 	const (
 		firstBody = `Title: Post 1
-Description: Description 1`
+Description: Description 1
+Tags: tdd, go`
 		secondBody = `Title: Post 2
-Description: Description 2`
+Description: Description 2
+Tags: rust, borrow-checker`
 	)
 
 	fs := fstest.MapFS{
@@ -31,7 +33,7 @@ Description: Description 2`
 	posts, err := NewPostsFromFS(fs)
 
 	got := posts[0]
-	want := Post{Title: "Post 1", Description: "Description 1"}
+	want := Post{Title: "Post 1", Description: "Description 1", Tags: "tdd, go"}
 	assert.Equal(t, want, got)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(posts))
