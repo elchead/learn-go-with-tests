@@ -24,9 +24,7 @@ func TestSVGWriterAtMidnight(t *testing.T) {
 
 	want := Line{150, 150, 150, 60}
 
-	for _, line := range svg.Line {
-		assert.Equal(t, want, line)
-	}
+	assert.Equal(t, true, containsLine(want, svg.Line))
 }
 
 func TestSVGWriterMinuteHand(t *testing.T) {
