@@ -10,7 +10,7 @@ import (
 type Post struct {
 	Title       string
 	Description string
-	Tags        string
+	Tags        []string
 }
 
 const (
@@ -37,7 +37,7 @@ func newPost(f io.Reader) (Post, error) {
 
 	title := readMetaLine(titleSeparator)
 	description := readMetaLine(descriptionSeparator)
-	tags := readMetaLine(tagsSeparator)
+	tags := strings.Split(readMetaLine(tagsSeparator), ", ")
 	return Post{Title: title, Description: description, Tags: tags}, nil
 }
 

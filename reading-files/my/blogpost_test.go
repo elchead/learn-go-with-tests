@@ -33,7 +33,7 @@ Tags: rust, borrow-checker`
 	posts, err := NewPostsFromFS(fs)
 
 	got := posts[0]
-	want := Post{Title: "Post 1", Description: "Description 1", Tags: "tdd, go"}
+	want := Post{Title: "Post 1", Description: "Description 1", Tags: []string{"tdd", "go"}}
 	assert.Equal(t, want, got)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(posts))
