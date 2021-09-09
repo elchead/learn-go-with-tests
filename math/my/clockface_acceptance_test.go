@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"testing"
 	"time"
 
@@ -28,29 +29,29 @@ func TestSVGWriterAtMidnight(t *testing.T) {
 	}
 }
 
-// func TestSVGWriterMinuteHand(t *testing.T) {
-// 	cases := []struct {
-// 		time time.Time
-// 		line Line
-// 	}{
-// 		{
-// 			simpleTime(0, 0, 0),
-// 			Line{150, 150, 150, 70},
-// 		},
-// 	}
+func TestSVGWriterMinuteHand(t *testing.T) {
+	cases := []struct {
+		time time.Time
+		line Line
+	}{
+		{
+			simpleTime(0, 0, 0),
+			Line{150, 150, 150, 70},
+		},
+	}
 
-// 	for _, c := range cases {
-// 		t.Run(testName(c.time), func(t *testing.T) {
-// 			b := bytes.Buffer{}
-// 			SVGWriter(&b, c.time)
-// 			svg := SVG{}
-// 			xml.Unmarshal(b.Bytes(), &svg)
+	for _, c := range cases {
+		t.Run(testName(c.time), func(t *testing.T) {
+			b := bytes.Buffer{}
+			SVGWriter(&b, c.time)
+			svg := SVG{}
+			xml.Unmarshal(b.Bytes(), &svg)
 
-// 			assert.Equal(t, true, containsLine(c.line, svg.Line), fmt.Sprintf("Expected to find the second hand line %+v, in the SVG lines %+v", c.line, svg.Line))
-// 		})
-// 	}
+			assert.Equal(t, true, containsLine(c.line, svg.Line), fmt.Sprintf("Expected to find the second hand line %+v, in the SVG lines %+v", c.line, svg.Line))
+		})
+	}
 
-// }
+}
 func TestSVGWriterSecondHand(t *testing.T) {
 	cases := []struct {
 		time time.Time

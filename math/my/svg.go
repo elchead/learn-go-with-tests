@@ -9,6 +9,7 @@ import (
 
 const (
 	secondHandLength = 90
+	minuteHandLength = 80
 	clockCentreX     = 150
 	clockCentreY     = 150
 )
@@ -37,6 +38,13 @@ type Line struct {
 	Y2 float64 `xml:"y2,attr"`
 }
 
+func minuteHand(w io.Writer, t time.Time) {
+	p := minuteHandPoint(t)
+	p = Point{p.X * minuteHandLength, p.Y * minuteHandLength}
+	p = Point{p.X, -p.Y}
+	p = Point{p.X + clockCentreX, p.Y + clockCentreY} //translate
+	fmt.Fprintf(w, `<line x1="150" y1="150" x2="%.3f" y2="%.3f" style="fill:none;stroke:#f00;stroke-width:3px;"/>`, p.X, p.Y)
+}
 func secondHand(w io.Writer, t time.Time) {
 	p := secondHandPoint(t)
 	p = Point{p.X * secondHandLength, p.Y * secondHandLength}
@@ -48,6 +56,7 @@ func secondHand(w io.Writer, t time.Time) {
 func SVGWriter(w io.Writer, t time.Time) {
 	io.WriteString(w, svgStart)
 	io.WriteString(w, bezel)
+	minuteHand(w, t)
 	secondHand(w, t)
 	io.WriteString(w, svgEnd)
 }
