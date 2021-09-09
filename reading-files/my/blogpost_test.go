@@ -20,7 +20,11 @@ func TestPostFromFolder(t *testing.T) {
 	const (
 		firstBody = `Title: Post 1
 Description: Description 1
-Tags: tdd, go`
+Tags: tdd, go
+---
+H
+O
+`
 		secondBody = `Title: Post 2
 Description: Description 2
 Tags: rust, borrow-checker`
@@ -33,7 +37,7 @@ Tags: rust, borrow-checker`
 	posts, err := NewPostsFromFS(fs)
 
 	got := posts[0]
-	want := Post{Title: "Post 1", Description: "Description 1", Tags: []string{"tdd", "go"}}
+	want := Post{Title: "Post 1", Description: "Description 1", Tags: []string{"tdd", "go"}, Body: "H\nO"}
 	assert.Equal(t, want, got)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(posts))
