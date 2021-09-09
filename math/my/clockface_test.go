@@ -24,6 +24,22 @@ func roughlyEqualPoint(a, b Point) bool {
 		roughlyEqualFloat64(a.Y, b.Y)
 }
 
+func TestHourHandOnUnitCircle(t *testing.T) {
+	cases := []struct {
+		time  time.Time
+		point Point
+	}{
+		{simpleTime(6, 0, 0), Point{0, -1}},
+		{simpleTime(21, 0, 0), Point{-1, 0}},
+	}
+	for _, c := range cases {
+		t.Run(testName(c.time), func(t *testing.T) {
+			got := hourHandPoint(c.time)
+			assert.Equal(t, true, roughlyEqualPoint(got, c.point))
+		})
+	}
+}
+
 func TestMinuteHandOnUnitCircle(t *testing.T) {
 	cases := []struct {
 		time  time.Time

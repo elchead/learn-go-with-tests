@@ -23,6 +23,10 @@ func secondHandPoint(time time.Time) Point {
 	return p
 }
 
+func hourHandPoint(t time.Time) Point {
+	return angleToPoint(hoursInRadians(t))
+}
+
 func minuteHandPoint(t time.Time) Point {
 	return angleToPoint(minutesInRadians(t))
 }
