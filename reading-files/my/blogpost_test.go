@@ -12,6 +12,7 @@ func TestPostFromFolder(t *testing.T) {
 		"hello world.md":  {Data: []byte("hi")},
 		"hello-world2.md": {Data: []byte("hola")},
 	}
-	posts := NewPostsFromFS(fs)
-	assert.NotEmpty(t, posts)
+	posts, err := NewPostsFromFS(fs)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(posts))
 }
