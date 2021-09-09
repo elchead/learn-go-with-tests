@@ -34,3 +34,7 @@ func secondsInRadians(seconds int) float64 {
 func minutesInRadians(t time.Time) float64 {
 	return math.Pi/(30./float64(t.Minute())) + secondsInRadians(t.Second())/60 // arrange to avoid arithmetic error
 }
+
+func hoursInRadians(t time.Time) float64 {
+	return math.Pi/(6./float64(t.Hour()%12)) + secondsInRadians(t.Second())/60 // arrange to avoid arithmetic error
+}

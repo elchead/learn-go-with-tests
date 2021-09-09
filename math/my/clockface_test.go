@@ -77,3 +77,20 @@ func TestMinuteToRadians(t *testing.T) {
 	}
 
 }
+func TestHoursToRadians(t *testing.T) {
+	cases := []struct {
+		time  time.Time
+		angle float64
+	}{
+		{simpleTime(6, 0, 0), math.Pi},
+		{simpleTime(0, 0, 0), 0},
+		{simpleTime(21, 0, 0), math.Pi * 1.5},
+	}
+	for _, c := range cases {
+		t.Run(testName(c.time), func(t *testing.T) {
+			got := hoursInRadians(c.time)
+			assert.Equal(t, c.angle, got)
+		})
+	}
+
+}
