@@ -11,6 +11,11 @@ type Post struct {
 	Description string
 }
 
+const (
+	titleSeparator       = "Title: "
+	descriptionSeparator = "Description:  "
+)
+
 func getPost(fileSystem fs.FS, filename string) (Post, error) {
 	file, err := fileSystem.Open(filename)
 	if err != nil {
@@ -22,11 +27,14 @@ func getPost(fileSystem fs.FS, filename string) (Post, error) {
 
 func newPost(f io.Reader) (Post, error) {
 	scanner := bufio.NewScanner(f)
-	scanner.Scan()
-	title := scanner.Text()
-	scanner.Scan()
-	description := scanner.Text()
-	return Post{Title: string(title[7:]), Description: string(description[14:])}, nil
+	readLine := func() string {
+		scanner.Scan()
+		return scanner.Text()
+	}
+
+	title := readLine()[len(titleSeparator):]
+	description := readLine()[len(descriptionSeparator):]
+	return Post{Title: title, Description: description}, nil
 }
 
 func NewPostsFromFS(fileSystem fs.FS) ([]Post, error) {
