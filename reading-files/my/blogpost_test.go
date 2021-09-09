@@ -18,10 +18,14 @@ func (s StubFailingFS) Open(name string) (fs.File, error) {
 
 func TestPostFromFolder(t *testing.T) {
 	fs := fstest.MapFS{
-		"hello world.md":  {Data: []byte("hi")},
-		"hello-world2.md": {Data: []byte("hola")},
+		"hello world.md":  {Data: []byte("Title: Post 1")},
+		"hello-world2.md": {Data: []byte("Title: Post 2")},
 	}
 	posts, err := NewPostsFromFS(fs)
+
+	got := posts[0]
+	want := Post{Title: "Post 1"}
+	assert.Equal(t, want, got)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(posts))
 }
