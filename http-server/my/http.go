@@ -6,25 +6,21 @@ import (
 	"strings"
 )
 
-type playerStore map[string]int
-
-func GetPlayerScore(player string) int {
-	if player == "Floyd" {
-		return 50
-	}
-	if player == "Bob" {
-		return 100
-	}
-	return 0
+type PlayerStore interface {
+	GetPlayerScore(name string) int
 }
 
-func PlayerServer(w http.ResponseWriter, request *http.Request) {
-	player := strings.TrimPrefix(request.URL.Path, "/players/")
-	fmt.Fprint(w, GetPlayerScore(player))
+type PlayerServer struct {
+	store PlayerStore
 }
 
-func createServer(store playerStore) string {
-	// http.HandleFunc("/players/Bob", playerHandler)
-	http.ListenAndServe(":8080", nil)
-	return "http:localhost:8080"
+func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+	fmt.Fprint(w, s.store.GetPlayerScore(player))
+}
+
+type StubStore map[string]int
+
+func (s StubStore) GetPlayerScore(player string) int {
+	return s[player]
 }
