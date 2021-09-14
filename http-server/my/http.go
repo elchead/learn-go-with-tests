@@ -8,15 +8,19 @@ import (
 
 type playerStore map[string]int
 
-func PlayerServer(w http.ResponseWriter, request *http.Request) {
-	player := strings.TrimPrefix(request.URL.Path, "/players/")
+func GetPlayerScore(player string) int {
 	if player == "Floyd" {
-		fmt.Fprint(w, 50)
-		return
+		return 50
 	}
 	if player == "Bob" {
-		fmt.Fprint(w, 100)
+		return 100
 	}
+	return 0
+}
+
+func PlayerServer(w http.ResponseWriter, request *http.Request) {
+	player := strings.TrimPrefix(request.URL.Path, "/players/")
+	fmt.Fprint(w, GetPlayerScore(player))
 }
 
 func createServer(store playerStore) string {
