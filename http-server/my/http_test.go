@@ -21,6 +21,7 @@ func TestListenAndServe(t *testing.T) {
 		sv := &PlayerServer{StubStore{"Floyd": 50, "Bob": 100}}
 		sv.ServeHTTP(resp, req)
 		assert.Equal(t, resp.Body.String(), "100")
+		assert.Equal(t, resp.Code, http.StatusOK)
 	})
 	t.Run("return Floyd", func(t *testing.T) {
 		req := newGetScoreRequest("Floyd")
@@ -28,12 +29,14 @@ func TestListenAndServe(t *testing.T) {
 		sv := &PlayerServer{StubStore{"Floyd": 50, "Bob": 100}}
 		sv.ServeHTTP(resp, req)
 		assert.Equal(t, resp.Body.String(), "50")
+		assert.Equal(t, resp.Code, http.StatusOK)
 	})
 	t.Run("missing player 404", func(t *testing.T) {
 		req := newGetScoreRequest("Hans")
 		resp := httptest.NewRecorder()
 		sv := &PlayerServer{StubStore{"Floyd": 50, "Bob": 100}}
 		sv.ServeHTTP(resp, req)
-		assert.Equal(t, resp.Code, http.StatusNotFound)
+		// assert.Equal(t, resp.Body.String(), "0")
+		assert.Equal(t, http.StatusNotFound, resp.Code)
 	})
 }

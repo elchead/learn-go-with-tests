@@ -20,12 +20,14 @@ func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, val)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, val)
 	}
+
 }
 
 type StubStore map[string]int
 
 func (s StubStore) GetPlayerScore(player string) (val int, ok bool) {
-	val, ok = s[player]
+	val, ok = s[player] // map returns 0 if not found..
 	return
 }
