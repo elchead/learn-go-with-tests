@@ -29,4 +29,11 @@ func TestListenAndServe(t *testing.T) {
 		sv.ServeHTTP(resp, req)
 		assert.Equal(t, resp.Body.String(), "50")
 	})
+	t.Run("missing player 404", func(t *testing.T) {
+		req := newGetScoreRequest("Hans")
+		resp := httptest.NewRecorder()
+		sv := &PlayerServer{StubStore{"Floyd": 50, "Bob": 100}}
+		sv.ServeHTTP(resp, req)
+		assert.Equal(t, resp.Code, http.StatusNotFound)
+	})
 }
