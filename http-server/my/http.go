@@ -8,15 +8,14 @@ import (
 
 type PlayerStore interface {
 	GetPlayerScore(name string) (int, bool)
-	PostPlayer(name string, score int) error
+	PostPlayerWin(name string) error
 }
 
 type PlayerServer struct {
 	store PlayerStore
 }
 
-func (s PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (s PlayerServer) showScore(w http.ResponseWriter, player string) {
 	if val, ok := s.store.GetPlayerScore(player); ok {
 		fmt.Fprint(w, val)
 	} else {
@@ -25,18 +24,18 @@ func (s PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s PlayerServer) postPlayer(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
-	s.store.PostPlayer(player, 0)
+func (s PlayerServer) postPlayer(w http.ResponseWriter, player string) {
+	s.store.PostPlayerWin(player)
 	fmt.Fprintf(w, "posted")
 }
 
 func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	switch r.Method {
 	case http.MethodGet:
-		s.showScore(w, r)
+		s.showScore(w, player)
 	case http.MethodPost:
-		s.postPlayer(w, r)
+		s.postPlayer(w, player)
 	}
 }
 
@@ -47,7 +46,7 @@ func (s StubStore) GetPlayerScore(player string) (val int, ok bool) {
 	return
 }
 
-func (s StubStore) PostPlayer(name string, score int) error {
-	s[name] = score
+func (s StubStore) PostPlayerWin(name string) error {
+	s[name] += 1
 	return nil
 }

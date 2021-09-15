@@ -14,6 +14,11 @@ func newGetScoreRequest(name string) *http.Request {
 	return req
 }
 
+func newPostRequest(name string) *http.Request {
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
+	return req
+}
+
 func TestListenAndServe(t *testing.T) {
 	t.Run("return Bob", func(t *testing.T) {
 		req := newGetScoreRequest("Bob")
