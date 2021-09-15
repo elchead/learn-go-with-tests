@@ -40,3 +40,14 @@ func TestListenAndServe(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 	})
 }
+
+func TestStorePostScore(t *testing.T) {
+	store := StubStore{}
+	server := &PlayerServer{&store}
+	t.Run("accept post", func(t *testing.T) {
+		rq, _ := http.NewRequest(http.MethodPost, "/players/Pepper", nil)
+		rp := httptest.NewRecorder()
+		server.ServeHTTP(rp, rq)
+		assert.Equal(t, http.StatusOK, rp.Code)
+	})
+}
