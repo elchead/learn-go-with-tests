@@ -14,19 +14,27 @@ type PlayerServer struct {
 	store PlayerStore
 }
 
-func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
-	if r.Method == "POST" {
-		fmt.Fprintf(w, "posted")
-		return
-	}
 	if val, ok := s.store.GetPlayerScore(player); ok {
 		fmt.Fprint(w, val)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, val)
 	}
+}
 
+func (s PlayerServer) postPlayer(w http.ResponseWriter) {
+	fmt.Fprintf(w, "posted")
+}
+
+func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.showScore(w, r)
+	case http.MethodPost:
+		s.postPlayer(w)
+	}
 }
 
 type StubStore map[string]int
