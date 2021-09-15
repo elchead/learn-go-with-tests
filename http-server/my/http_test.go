@@ -49,5 +49,7 @@ func TestStorePostScore(t *testing.T) {
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
 		assert.Equal(t, http.StatusOK, rp.Code)
+		_, ok := store["Pepper"]
+		assert.Equal(t, true, ok)
 	})
 }
