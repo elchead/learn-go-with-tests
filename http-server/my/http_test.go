@@ -72,10 +72,11 @@ func TestLeague(t *testing.T) {
 	t.Run("returns player list on /league", func(t *testing.T) {
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
-		players := ConvertMapToPlayers(mapa)
-		jsonData, err := json.Marshal(players)
+
+		var got []Player
+		err := json.NewDecoder(rp.Body).Decode(&got)
 		assert.NoError(t, err)
-		assert.Equal(t, string(jsonData), rp.Body.String())
+		assert.Equal(t, ConvertMapToPlayers(mapa), got) // brittle to compare json data.. (ordering..)
 	})
 }
 

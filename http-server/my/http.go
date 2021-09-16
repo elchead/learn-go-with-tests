@@ -53,11 +53,8 @@ func getEndpointName(path string) string {
 func (s PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	players := s.store.GetPlayers()
-	jsonData, err := json.Marshal(players)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(players); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		fmt.Fprintf(w, string(jsonData))
 	}
 }
 
