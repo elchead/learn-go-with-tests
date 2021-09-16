@@ -35,20 +35,23 @@ func getEndpointName(path string) string {
 }
 
 func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	endpoint := getEndpointName(r.URL.Path)
-	if endpoint == "league" {
+	router := http.NewServeMux()
+
+	router.Handle("/league", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		players := s.store.GetPlayers()
 		fmt.Fprintf(w, "%s, %s", players[0], players[1])
-		return
-	}
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
-	switch r.Method {
-	case http.MethodGet:
-		s.showScore(w, player)
-	case http.MethodPost:
-		s.postPlayer(w, player)
-	}
+	}))
+	router.Handle("/players", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		player := strings.TrimPrefix(r.URL.Path, "/players/")
+		switch r.Method {
+		case http.MethodGet:
+			s.showScore(w, player)
+		case http.MethodPost:
+			s.postPlayer(w, player)
+		}
+	}))
+	router.ServeHTTP(w, r)
 }
 
 type StubStore map[string]int

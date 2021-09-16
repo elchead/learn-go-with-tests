@@ -71,6 +71,7 @@ func TestLeague(t *testing.T) {
 	t.Run("returns player list on /league", func(t *testing.T) {
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
+		// f := Player{"Floyd"}
 		assert.Equal(t, "Floyd, Bob", rp.Body.String())
 	})
 }
