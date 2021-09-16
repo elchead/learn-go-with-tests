@@ -20,6 +20,10 @@ func newPostRequest(name string) *http.Request {
 	return req
 }
 
+func newGetLeagueRequest() *http.Request {
+	req, _ := http.NewRequest(http.MethodPost, "/league", nil)
+	return req
+}
 func TestListenAndServe(t *testing.T) {
 	t.Run("return Bob", func(t *testing.T) {
 		req := newGetScoreRequest("Bob")
@@ -42,7 +46,6 @@ func TestListenAndServe(t *testing.T) {
 		resp := httptest.NewRecorder()
 		sv := NewPlayerServer(StubStore{"Floyd": 50, "Bob": 100})
 		sv.ServeHTTP(resp, req)
-		// assert.Equal(t, resp.Body.String(), "0")
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 	})
 }
