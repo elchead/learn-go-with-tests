@@ -6,37 +6,25 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func TestClient(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-	err = client.Ping(ctx, readpref.Primary())
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	assert.Equal(t, nil, err)
-	collection := client.Database("tdd").Collection("players")
+	// client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	// defer func() {
+	// 	if err = client.Disconnect(ctx); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
+	// err = client.Ping(ctx, readpref.Primary())
+	// assert.Equal(t, nil, err)
 
-	// player := Player{Name: "Bob"}
-	// collection.InsertOne(ctx, player)
-	doc := collection.FindOne(ctx, bson.D{})
-
+	name := "Kate"
 	store := NewMongoStore(ctx, "mongodb://localhost:27017")
-	store.PostPlayerWin("Bob")
-
-	readPlayer := &Player{}
-	err = doc.Decode(readPlayer)
+	err := store.PostPlayerWin(name)
 	assert.NoError(t, err)
-	assert.Equal(t, "Bob", readPlayer.Name)
+	score, ok := store.GetPlayerScore(name)
+	assert.Equal(t, true, ok)
+	assert.Equal(t, 1, score)
 }

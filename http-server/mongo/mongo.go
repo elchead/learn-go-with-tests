@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -29,7 +30,12 @@ func NewMongoStore(ctx context.Context, uri string) *MongoStore {
 }
 
 func (s *MongoStore) GetPlayerScore(name string) (int, bool) {
-	return 0, false
+	doc := s.collection.FindOne(s.ctx, bson.M{"name": name})
+	readPlayer := &Player{}
+	if err := doc.Decode(readPlayer); err != nil {
+		return 0, false
+	}
+	return readPlayer.Score, true
 }
 
 func (s *MongoStore) PostPlayerWin(name string) error {
