@@ -72,6 +72,7 @@ func TestLeague(t *testing.T) {
 	t.Run("returns player list on /league", func(t *testing.T) {
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
+		assert.Equal(t, "application/json", rp.Result().Header.Get("Content-Type"))
 
 		var got []Player
 		err := json.NewDecoder(rp.Body).Decode(&got)
