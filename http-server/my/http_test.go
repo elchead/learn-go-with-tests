@@ -60,13 +60,18 @@ func TestStorePostScore(t *testing.T) {
 }
 
 func TestLeague(t *testing.T) {
-	store := StubStore{}
+	store := StubStore{"Floyd": 50, "Bob": 100}
 	server := &PlayerServer{&store}
+	rq, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	t.Run("returns 200 on /league", func(t *testing.T) {
-		rq, _ := http.NewRequest(http.MethodGet, "/league", nil)
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
 		assert.Equal(t, http.StatusOK, rp.Code)
+	})
+	t.Run("returns player list on /league", func(t *testing.T) {
+		rp := httptest.NewRecorder()
+		server.ServeHTTP(rp, rq)
+		assert.Equal(t, "Floyd, Bob", rp.Body.String())
 	})
 }
 

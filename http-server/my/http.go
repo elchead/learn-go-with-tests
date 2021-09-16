@@ -8,6 +8,7 @@ import (
 
 type PlayerStore interface {
 	GetPlayerScore(name string) (int, bool)
+	GetPlayers() []string
 	PostPlayerWin(name string) error
 }
 
@@ -37,6 +38,9 @@ func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	endpoint := getEndpointName(r.URL.Path)
 	if endpoint == "league" {
 		w.WriteHeader(http.StatusOK)
+		players := s.store.GetPlayers()
+		fmt.Fprintf(w, "%s, %s", players[0], players[1])
+		return
 	}
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	switch r.Method {
@@ -57,4 +61,12 @@ func (s StubStore) GetPlayerScore(player string) (val int, ok bool) {
 func (s StubStore) PostPlayerWin(name string) error {
 	s[name] += 1
 	return nil
+}
+
+func (s StubStore) GetPlayers() []string {
+	keys := make([]string, 0, len(s))
+	for k := range s {
+		keys = append(keys, k)
+	}
+	return keys
 }
