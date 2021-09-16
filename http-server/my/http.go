@@ -29,7 +29,15 @@ func (s PlayerServer) postPlayer(w http.ResponseWriter, player string) {
 	fmt.Fprintf(w, "posted")
 }
 
+func getEndpointName(path string) string {
+	return strings.Split(path, "/")[1]
+}
+
 func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	endpoint := getEndpointName(r.URL.Path)
+	if endpoint == "league" {
+		w.WriteHeader(http.StatusOK)
+	}
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	switch r.Method {
 	case http.MethodGet:

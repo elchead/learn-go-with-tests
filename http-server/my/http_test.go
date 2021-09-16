@@ -58,3 +58,20 @@ func TestStorePostScore(t *testing.T) {
 		assert.Equal(t, true, ok)
 	})
 }
+
+func TestLeague(t *testing.T) {
+	store := StubStore{}
+	server := &PlayerServer{&store}
+	t.Run("returns 200 on /league", func(t *testing.T) {
+		rq, _ := http.NewRequest(http.MethodGet, "/league", nil)
+		rp := httptest.NewRecorder()
+		server.ServeHTTP(rp, rq)
+		assert.Equal(t, http.StatusOK, rp.Code)
+	})
+}
+
+func TestGetEndpointName(t *testing.T) {
+	path := "/league/s/"
+	assert.Equal(t, "league", getEndpointName(path))
+
+}
