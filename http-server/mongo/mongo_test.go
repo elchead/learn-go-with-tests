@@ -12,11 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type Player struct {
-	Name  string
-	Score int
-}
-
 func TestClient(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -33,9 +28,12 @@ func TestClient(t *testing.T) {
 	assert.Equal(t, nil, err)
 	collection := client.Database("tdd").Collection("players")
 
-	player := Player{Name: "Bob"}
-	collection.InsertOne(ctx, player)
+	// player := Player{Name: "Bob"}
+	// collection.InsertOne(ctx, player)
 	doc := collection.FindOne(ctx, bson.D{})
+
+	store := NewMongoStore(ctx, "mongodb://localhost:27017")
+	store.PostPlayerWin("Bob")
 
 	readPlayer := &Player{}
 	err = doc.Decode(readPlayer)
