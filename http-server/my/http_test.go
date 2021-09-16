@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -48,7 +49,7 @@ func TestListenAndServe(t *testing.T) {
 
 func TestStorePostScore(t *testing.T) {
 	store := StubStore{}
-	server := NewPlayerServer(StubStore{"Floyd": 50, "Bob": 100})
+	server := NewPlayerServer(&store)
 	t.Run("accept post", func(t *testing.T) {
 		rq, _ := http.NewRequest(http.MethodPost, "/players/Pepper", nil)
 		rp := httptest.NewRecorder()
@@ -60,7 +61,8 @@ func TestStorePostScore(t *testing.T) {
 }
 
 func TestLeague(t *testing.T) {
-	server := NewPlayerServer(StubStore{"Floyd": 50, "Bob": 100})
+	mapa := map[string]int{"Bob": 100, "Floyd": 50}
+	server := NewPlayerServer(StubStore(mapa))
 	rq, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	t.Run("returns 200 on /league", func(t *testing.T) {
 		rp := httptest.NewRecorder()
@@ -70,8 +72,10 @@ func TestLeague(t *testing.T) {
 	t.Run("returns player list on /league", func(t *testing.T) {
 		rp := httptest.NewRecorder()
 		server.ServeHTTP(rp, rq)
-		// f := Player{"Floyd"}
-		assert.Equal(t, "Floyd, Bob", rp.Body.String())
+		players := ConvertMapToPlayers(mapa)
+		jsonData, err := json.Marshal(players)
+		assert.NoError(t, err)
+		assert.Equal(t, string(jsonData), rp.Body.String())
 	})
 }
 

@@ -1,26 +1,34 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
+type Player struct {
+	Name  string
+	Score int
+}
+
 type PlayerStore interface {
 	GetPlayerScore(name string) (int, bool)
-	GetPlayers() []string
+	GetPlayers() []Player
 	PostPlayerWin(name string) error
 }
 
 type PlayerServer struct {
-	store  PlayerStore
-	router *http.ServeMux
+	store PlayerStore
+	http.Handler
 }
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
-	s := &PlayerServer{store: store, router: http.NewServeMux()}
-	s.router.Handle("/league", http.HandlerFunc(s.leagueHandler))
-	s.router.Handle("/players/", http.HandlerFunc(s.playerHandler))
+	s := &PlayerServer{store: store}
+	router := http.NewServeMux()
+	router.Handle("/league", http.HandlerFunc(s.leagueHandler))
+	router.Handle("/players/", http.HandlerFunc(s.playerHandler))
+	s.Handler = router
 	return s
 }
 
@@ -45,7 +53,12 @@ func getEndpointName(path string) string {
 func (s PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	players := s.store.GetPlayers()
-	fmt.Fprintf(w, "%s, %s", players[0], players[1])
+	jsonData, err := json.Marshal(players)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		fmt.Fprintf(w, string(jsonData))
+	}
 }
 
 func (s PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,10 +69,6 @@ func (s PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		s.postPlayer(w, player)
 	}
-}
-
-func (s PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.router.ServeHTTP(w, r)
 }
 
 type StubStore map[string]int
@@ -74,10 +83,14 @@ func (s StubStore) PostPlayerWin(name string) error {
 	return nil
 }
 
-func (s StubStore) GetPlayers() []string {
-	keys := make([]string, 0, len(s))
-	for k := range s {
-		keys = append(keys, k)
+func ConvertMapToPlayers(m map[string]int) (players []Player) {
+	keys := make([]Player, 0, len(m))
+	for k, v := range m {
+		keys = append(keys, Player{k, v})
 	}
 	return keys
+}
+
+func (s StubStore) GetPlayers() []Player {
+	return ConvertMapToPlayers(s)
 }
