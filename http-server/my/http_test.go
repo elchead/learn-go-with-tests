@@ -76,7 +76,7 @@ func TestLeague(t *testing.T) {
 		var got []Player
 		err := json.NewDecoder(rp.Body).Decode(&got)
 		assert.NoError(t, err)
-		assert.Equal(t, ConvertMapToPlayers(mapa), got) // brittle to compare json data.. (ordering..)
+		assert.ElementsMatch(t, ConvertMapToPlayers(mapa), got) // use ElementsMatch (sorting) because decoding has NON-DETERMINISTIC array order!
 	})
 }
 

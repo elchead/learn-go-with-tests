@@ -14,7 +14,7 @@ type Player struct {
 
 type PlayerStore interface {
 	GetPlayerScore(name string) (int, bool)
-	GetPlayers() []Player
+	GetLeague() []Player
 	PostPlayerWin(name string) error
 }
 
@@ -52,7 +52,7 @@ func getEndpointName(path string) string {
 
 func (s PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	players := s.store.GetPlayers()
+	players := s.store.GetLeague()
 	if err := json.NewEncoder(w).Encode(players); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -88,6 +88,6 @@ func ConvertMapToPlayers(m map[string]int) (players []Player) {
 	return keys
 }
 
-func (s StubStore) GetPlayers() []Player {
+func (s StubStore) GetLeague() []Player {
 	return ConvertMapToPlayers(s)
 }
