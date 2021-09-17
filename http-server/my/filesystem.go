@@ -7,7 +7,7 @@ import (
 )
 
 type FileSystemPlayerStore struct {
-	database io.Reader
+	database io.ReadSeeker
 }
 
 func NewLeague(rdr io.Reader) ([]Player, error) {
@@ -20,6 +20,17 @@ func NewLeague(rdr io.Reader) ([]Player, error) {
 }
 
 func (s FileSystemPlayerStore) GetLeague() []Player {
+	s.database.Seek(0, 0) // reset reading pointer to beginning for idempotency
 	league, _ := NewLeague(s.database)
 	return league
+}
+
+func (s FileSystemPlayerStore) GetPlayerScore(name string) (int, bool) {
+	league := s.GetLeague()
+	for _, v := range league {
+		if v.Name == name {
+			return v.Score, true
+		}
+	}
+	return 0, false
 }
