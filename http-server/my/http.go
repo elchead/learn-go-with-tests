@@ -48,10 +48,6 @@ func (s PlayerServer) postPlayer(w http.ResponseWriter, player string) {
 	fmt.Fprintf(w, "posted")
 }
 
-func getEndpointName(path string) string {
-	return strings.Split(path, "/")[1]
-}
-
 func (s PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", jsonContentType)
 	if err := json.NewEncoder(w).Encode(s.store.GetLeague()); err != nil {

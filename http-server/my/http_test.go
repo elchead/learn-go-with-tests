@@ -83,9 +83,3 @@ func TestLeague(t *testing.T) {
 		assert.ElementsMatch(t, ConvertMapToPlayers(mapa), got) // use ElementsMatch (sorting) because decoding has NON-DETERMINISTIC array order!
 	})
 }
-
-func TestGetEndpointName(t *testing.T) {
-	path := "/league/s/"
-	assert.Equal(t, "league", getEndpointName(path))
-
-}
