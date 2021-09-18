@@ -35,7 +35,8 @@ func TestFileSystemStore(t *testing.T) {
 ]
 `)
 		defer cleanDatabase()
-		store := NewFileSystemPlayerStore(database)
+		store, err := NewFileSystemPlayerStore(database)
+		assert.NoError(t, err)
 		got := store.GetLeague()
 		assert.ElementsMatch(t, []Player{{"Cleo", 10}, {"Chris", 33}}, got)
 		got = store.GetLeague() // test idempotency
@@ -48,7 +49,8 @@ func TestFileSystemStore(t *testing.T) {
 			 		]
 		`)
 		defer cleanDatabase()
-		store := NewFileSystemPlayerStore(database)
+		store, err := NewFileSystemPlayerStore(database)
+		assert.NoError(t, err)
 		got, _ := store.GetPlayerScore("Cleo")
 		assert.Equal(t, 10, got)
 
@@ -60,7 +62,8 @@ func TestFileSystemStore(t *testing.T) {
 		]
 `)
 		defer cleanDatabase()
-		store := NewFileSystemPlayerStore(database)
+		store, err := NewFileSystemPlayerStore(database)
+		assert.NoError(t, err)
 		store.RecordWin("Chris")
 		got, _ := store.GetPlayerScore("Chris")
 		assert.Equal(t, 34, got)
@@ -72,7 +75,8 @@ func TestFileSystemStore(t *testing.T) {
 		]
 `)
 		defer cleanDatabase()
-		store := NewFileSystemPlayerStore(database)
+		store, err := NewFileSystemPlayerStore(database)
+		assert.NoError(t, err)
 		store.RecordWin("Adrian")
 		got, ok := store.GetPlayerScore("Adrian")
 		assert.Equal(t, true, ok)

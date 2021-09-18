@@ -11,10 +11,13 @@ type FileSystemPlayerStore struct {
 	league   League
 }
 
-func NewFileSystemPlayerStore(db ReadWriteTruncate) *FileSystemPlayerStore {
-	db.Seek(0, 0)              // reset reading pointer to beginning for idempotency
-	league, _ := NewLeague(db) // TODO throws error
-	return &FileSystemPlayerStore{league: league, database: json.NewEncoder(&tape{db})}
+func NewFileSystemPlayerStore(db ReadWriteTruncate) (*FileSystemPlayerStore, error) {
+	db.Seek(0, 0)                // reset reading pointer to beginning for idempotency
+	league, err := NewLeague(db) // TODO throws error
+	if err != nil {
+		return nil, fmt.Errorf("Could not load league from file: %v", err)
+	}
+	return &FileSystemPlayerStore{league: league, database: json.NewEncoder(&tape{db})}, nil
 }
 
 func NewLeague(rdr io.Reader) (League, error) {
