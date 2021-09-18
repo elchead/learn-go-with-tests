@@ -12,14 +12,11 @@ const dbFileName = "game.db.json"
 
 func main() {
 	fmt.Println("Lets play poker")
-	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
-
-	store, err := poker.NewFileSystemPlayerStore(db)
-
+	store, closeDb, err := poker.FileSystemPlayerStoreFromFile(dbFileName) //poker.NewFileSystemPlayerStore(db)
+	defer closeDb()
 	if err != nil {
 		log.Fatalf("problem creating file system player store, %v ", err)
 	}
 
-	game := poker.CLI{store, os.Stdin}
-	game.PlayPoker()
+	poker.NewCLI(store, os.Stdin).PlayPoker()
 }
