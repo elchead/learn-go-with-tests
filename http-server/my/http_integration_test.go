@@ -9,8 +9,10 @@ import (
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := StubStore{}
-	server := NewPlayerServer(&store)
+	db, cleanDb := createTempFile(t, "")
+	defer cleanDb()
+	store := &FileSystemPlayerStore{db}
+	server := NewPlayerServer(store)
 	player := "Pepper"
 
 	server.ServeHTTP(httptest.NewRecorder(), newPostRequest(player))

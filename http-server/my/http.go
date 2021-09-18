@@ -16,8 +16,8 @@ type Player struct {
 
 type PlayerStore interface {
 	GetPlayerScore(name string) (int, bool)
-	GetLeague() []Player
-	PostPlayerWin(name string) error
+	GetLeague() League
+	RecordWin(name string) error
 }
 
 type PlayerServer struct {
@@ -44,7 +44,7 @@ func (s PlayerServer) showScore(w http.ResponseWriter, player string) {
 }
 
 func (s PlayerServer) postPlayer(w http.ResponseWriter, player string) {
-	s.store.PostPlayerWin(player)
+	s.store.RecordWin(player)
 	fmt.Fprintf(w, "posted")
 }
 
@@ -72,7 +72,7 @@ func (s StubStore) GetPlayerScore(player string) (val int, ok bool) {
 	return
 }
 
-func (s StubStore) PostPlayerWin(name string) error {
+func (s StubStore) RecordWin(name string) error {
 	s[name] += 1
 	return nil
 }
@@ -85,6 +85,6 @@ func ConvertMapToPlayers(m map[string]int) (players []Player) {
 	return keys
 }
 
-func (s StubStore) GetLeague() []Player {
+func (s StubStore) GetLeague() League {
 	return ConvertMapToPlayers(s)
 }
