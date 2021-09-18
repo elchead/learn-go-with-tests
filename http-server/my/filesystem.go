@@ -12,9 +12,9 @@ type FileSystemPlayerStore struct {
 }
 
 func NewFileSystemPlayerStore(db io.ReadWriteSeeker) *FileSystemPlayerStore {
-	store := &FileSystemPlayerStore{database: db}
-	store.league = store.GetLeague()
-	return store
+	db.Seek(0, 0)              // reset reading pointer to beginning for idempotency
+	league, _ := NewLeague(db) // TODO throws error
+	return &FileSystemPlayerStore{db, league}
 }
 
 func NewLeague(rdr io.Reader) (League, error) {
@@ -27,9 +27,7 @@ func NewLeague(rdr io.Reader) (League, error) {
 }
 
 func (s FileSystemPlayerStore) GetLeague() League {
-	s.database.Seek(0, 0) // reset reading pointer to beginning for idempotency
-	league, _ := NewLeague(s.database)
-	return league
+	return s.league
 }
 
 func (s FileSystemPlayerStore) GetPlayerScore(name string) (int, bool) {
@@ -40,14 +38,13 @@ func (s FileSystemPlayerStore) GetPlayerScore(name string) (int, bool) {
 	return player.Score, true
 }
 
-func (s FileSystemPlayerStore) RecordWin(name string) error {
-	league := s.GetLeague()
-	player := league.Find(name)
+func (s *FileSystemPlayerStore) RecordWin(name string) error {
+	player := s.league.Find(name)
 	if player == nil {
-		league = append(league, Player{name, 1})
+		s.league = append(s.league, Player{name, 1})
 	} else {
 		player.Score++
 	}
 	s.database.Seek(0, 0)
-	return json.NewEncoder(s.database).Encode(league)
+	return json.NewEncoder(s.database).Encode(s.league)
 }
