@@ -8,6 +8,13 @@ import (
 
 type FileSystemPlayerStore struct {
 	database io.ReadWriteSeeker
+	league   League
+}
+
+func NewFileSystemPlayerStore(db io.ReadWriteSeeker) *FileSystemPlayerStore {
+	store := &FileSystemPlayerStore{database: db}
+	store.league = store.GetLeague()
+	return store
 }
 
 func NewLeague(rdr io.Reader) (League, error) {
