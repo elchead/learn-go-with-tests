@@ -30,7 +30,7 @@ func NewLeague(rdr io.Reader) (League, error) {
 }
 
 func (s FileSystemPlayerStore) GetLeague() League {
-	return s.league
+	return s.league.Sort()
 }
 
 func (s FileSystemPlayerStore) GetPlayerScore(name string) (int, bool) {

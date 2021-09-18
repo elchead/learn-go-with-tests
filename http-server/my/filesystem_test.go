@@ -28,7 +28,7 @@ func createTempFile(t testing.TB, initialData string) (ReadWriteTruncate, func()
 }
 
 func TestFileSystemStore(t *testing.T) {
-	t.Run("get league from reader", func(t *testing.T) {
+	t.Run("league is sorted", func(t *testing.T) {
 		database, cleanDatabase := createTempFile(t, `[
 	{"Name": "Cleo", "Score": 10},
 	{"Name": "Chris", "Score": 33}
@@ -38,9 +38,9 @@ func TestFileSystemStore(t *testing.T) {
 		store, err := NewFileSystemPlayerStore(database)
 		assert.NoError(t, err)
 		got := store.GetLeague()
-		assert.ElementsMatch(t, []Player{{"Cleo", 10}, {"Chris", 33}}, got)
-		got = store.GetLeague() // test idempotency
-		assert.ElementsMatch(t, []Player{{"Cleo", 10}, {"Chris", 33}}, got)
+		assert.Equal(t, League{{"Chris", 33}, {"Cleo", 10}}, got)
+		// got = store.GetLeague() // test idempotency
+		// assert.ElementsMatch(t, []Player{{"Cleo", 10}, {"Chris", 33}}, got)
 	})
 	t.Run("get player score", func(t *testing.T) {
 		database, cleanDatabase := createTempFile(t, `[
@@ -82,4 +82,12 @@ func TestFileSystemStore(t *testing.T) {
 		assert.Equal(t, true, ok)
 		assert.Equal(t, 1, got)
 	})
+	// t.Run("works with an empty file", func(t *testing.T) {
+	// 	database, cleanDatabase := createTempFile(t, "")
+	// 	defer cleanDatabase()
+
+	// 	_, err := NewFileSystemPlayerStore(database)
+
+	// 	assert.NoError(t, err)
+	// })
 }
