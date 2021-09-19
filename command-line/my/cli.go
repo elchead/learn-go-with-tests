@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 var PlayerPrompt string = "Please enter the number of players: "
@@ -35,12 +36,13 @@ func (cli *CLI) readLine() string {
 	return cli.in.Text()
 }
 
-func (c *CLI) PlayPoker() {
+func (c *CLI) PlayPoker() error {
 	fmt.Fprint(c.out, PlayerPrompt)
 	numberPlayers, err := strconv.Atoi(c.readLine())
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrap(err, "Could not parse number of players")
 	}
 	c.game.Start(numberPlayers)
 	c.game.Finish(extractWinner(c.readLine()))
+	return nil
 }

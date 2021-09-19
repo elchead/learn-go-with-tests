@@ -12,10 +12,12 @@ import (
 type SpyGame struct {
 	Name       string
 	NumPlayers int
+	WasStarted bool
 }
 
 func (s *SpyGame) Start(numberOfPlayers int) {
 	s.NumPlayers = numberOfPlayers
+	s.WasStarted = true
 }
 
 func (s *SpyGame) Finish(name string) {
@@ -45,6 +47,16 @@ func TestCLI(t *testing.T) {
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
 		}
+	})
+	t.Run("no game when no number of players provided", func(t *testing.T) {
+		dummyStdout := &bytes.Buffer{}
+		in := strings.NewReader("Hi\n")
+		gameSpy := &SpyGame{WasStarted: false}
+		cli := poker.NewCLI(gameSpy, in, dummyStdout)
+		err := cli.PlayPoker()
+		assert.Equal(t, false, gameSpy.WasStarted)
+		assert.Error(t, err)
+
 	})
 
 }
