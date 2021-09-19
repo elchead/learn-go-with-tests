@@ -2,6 +2,9 @@ package poker
 
 import "time"
 
+type Alerter interface {
+	ScheduleAlertAt(duration time.Duration, amount int)
+}
 type Game struct {
 	store   PlayerStore
 	alerter Alerter
