@@ -24,29 +24,39 @@ func (s *SpyGame) Finish(name string) {
 	s.Name = name
 }
 
+func assertMsgSentToUser(t testing.TB, stdout *bytes.Buffer) {
+	t.Helper()
+	got := stdout.String()
+	want := poker.PlayerPrompt
+	assert.Equal(t, got, want)
+
+}
+
+func assertFinishedWith(t testing.TB, want int, game *SpyGame) {
+	t.Helper()
+	assert.Equal(t, want, game.NumPlayers)
+}
+
 func TestCLI(t *testing.T) {
-	var dummyStdOut = &bytes.Buffer{}
-
-	in := strings.NewReader("5\nChris wins\n")
-	game := &SpyGame{}
-	cli := poker.NewCLI(game, in, dummyStdOut)
-	cli.PlayPoker()
-	assert.Equal(t, 5, game.NumPlayers)
-	assert.Equal(t, "Chris", game.Name)
-
-	t.Run("it prompts the user to enter the number of players", func(t *testing.T) {
+	t.Run("start game with 7 players and let 'Chris' win", func(t *testing.T) {
 		stdout := &bytes.Buffer{}
-		in := strings.NewReader("7\n")
+		in := strings.NewReader("7\nChris wins\n")
 		dummyGame := &SpyGame{}
 		cli := poker.NewCLI(dummyGame, in, stdout)
 		cli.PlayPoker()
-
-		got := stdout.String()
-		want := poker.PlayerPrompt
-
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+		assertMsgSentToUser(t, stdout)
+		assertFinishedWith(t, 7, dummyGame)
+		assert.Equal(t, "Chris", dummyGame.Name)
+	})
+	t.Run("start game with 3 players and let 'Leo' win", func(t *testing.T) {
+		stdout := &bytes.Buffer{}
+		in := strings.NewReader("3\nLeo wins\n")
+		dummyGame := &SpyGame{}
+		cli := poker.NewCLI(dummyGame, in, stdout)
+		cli.PlayPoker()
+		assertMsgSentToUser(t, stdout)
+		assertFinishedWith(t, 3, dummyGame)
+		assert.Equal(t, "Leo", dummyGame.Name)
 	})
 	t.Run("no game when no number of players provided", func(t *testing.T) {
 		dummyStdout := &bytes.Buffer{}
@@ -55,8 +65,16 @@ func TestCLI(t *testing.T) {
 		cli := poker.NewCLI(gameSpy, in, dummyStdout)
 		err := cli.PlayPoker()
 		assert.Equal(t, false, gameSpy.WasStarted)
-		assert.Error(t, err)
+		assert.EqualError(t, err, poker.BadPlayerInputErrMsg)
 
+	})
+	t.Run("throw error when winner input is invalid", func(t *testing.T) {
+		dummyStdout := &bytes.Buffer{}
+		in := strings.NewReader("5\nLloyd is a killer")
+		gameSpy := &SpyGame{WasStarted: false}
+		cli := poker.NewCLI(gameSpy, in, dummyStdout)
+		err := cli.PlayPoker()
+		assert.Error(t, err)
 	})
 
 }

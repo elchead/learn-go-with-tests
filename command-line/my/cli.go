@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -11,6 +12,8 @@ import (
 )
 
 var PlayerPrompt string = "Please enter the number of players: "
+
+var BadPlayerInputErrMsg string = "Could not parse number of players"
 
 type Gamer interface {
 	Start(numberPlayers int)
@@ -27,8 +30,12 @@ func NewCLI(game Gamer, input io.Reader, output io.Writer) *CLI {
 	return &CLI{game, bufio.NewScanner(input), output}
 }
 
-func extractWinner(userInput string) string {
-	return strings.Replace(userInput, " wins", "", 1)
+func extractWinner(userInput string) (string, error) {
+	matched, _ := regexp.MatchString(" wins", userInput)
+	if !matched {
+		return "", errors.Errorf("Invalid winner input: %s", userInput)
+	}
+	return strings.Replace(userInput, " wins", "", 1), nil
 }
 
 func (cli *CLI) readLine() string {
@@ -40,9 +47,13 @@ func (c *CLI) PlayPoker() error {
 	fmt.Fprint(c.out, PlayerPrompt)
 	numberPlayers, err := strconv.Atoi(c.readLine())
 	if err != nil {
-		return errors.Wrap(err, "Could not parse number of players")
+		return errors.New(BadPlayerInputErrMsg)
 	}
 	c.game.Start(numberPlayers)
-	c.game.Finish(extractWinner(c.readLine()))
+	winner, err := extractWinner(c.readLine())
+	if err != nil {
+		return err
+	}
+	c.game.Finish(winner)
 	return nil
 }
