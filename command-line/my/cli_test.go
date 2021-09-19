@@ -1,6 +1,7 @@
 package poker_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -28,14 +29,42 @@ func TestTime(t *testing.T) {
 		cli := poker.NewCLI(playerStore, in, blindAlerter)
 		assert.Equal(t, 0, len(blindAlerter.alerts))
 		cli.PlayPoker()
-		assert.Equal(t, 1, len(blindAlerter.alerts))
+		cases := []alert{
+			{0 * time.Second, 100},
+			{10 * time.Minute, 200},
+			{20 * time.Minute, 300},
+			{30 * time.Minute, 400},
+			{40 * time.Minute, 500},
+			{50 * time.Minute, 600},
+			{60 * time.Minute, 800},
+			{70 * time.Minute, 1000},
+			{80 * time.Minute, 2000},
+			{90 * time.Minute, 4000},
+			{100 * time.Minute, 8000},
+		}
+
+		for i, want := range cases {
+			t.Run(fmt.Sprintf("Value %d scheduled for %v", want.amount, want.time), func(t *testing.T) {
+				assert.Equal(t, want.amount, blindAlerter.alerts[i].amount)
+				assert.Equal(t, want.time, blindAlerter.alerts[i].time)
+			})
+		}
 	})
 }
 
+type alert struct {
+	time   time.Duration
+	amount int
+}
+
+func (s alert) String() string {
+	return fmt.Sprintf("%d chips at %v", s.amount, s.time)
+}
+
 type SpyBlindAlerter struct {
-	alerts []int
+	alerts []alert
 }
 
 func (s *SpyBlindAlerter) ScheduleAlertAt(at time.Duration, amount int) {
-	s.alerts = append(s.alerts, amount)
+	s.alerts = append(s.alerts, alert{at, amount})
 }

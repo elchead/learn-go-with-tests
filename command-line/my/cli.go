@@ -30,7 +30,14 @@ func (cli *CLI) readLine() string {
 	return cli.in.Text()
 }
 
+func (cli *CLI) scheduleBlindAlerts() {
+	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
+	for i := 0; i < 11; i++ {
+		cli.alerter.ScheduleAlertAt(time.Duration(i*10)*time.Minute, blinds[i])
+	}
+}
+
 func (c *CLI) PlayPoker() {
-	c.alerter.ScheduleAlertAt(10*time.Second, 10)
+	c.scheduleBlindAlerts()
 	c.store.RecordWin(extractWinner(c.readLine()))
 }
