@@ -11,13 +11,18 @@ import (
 
 var PlayerPrompt string = "Please enter the number of players: "
 
+type Gamer interface {
+	Start(numberPlayers int)
+	Finish(name string)
+}
+
 type CLI struct {
-	game *Game
+	game Gamer
 	in   *bufio.Scanner
 	out  io.Writer
 }
 
-func NewCLI(game *Game, input io.Reader, output io.Writer) *CLI {
+func NewCLI(game Gamer, input io.Reader, output io.Writer) *CLI {
 	return &CLI{game, bufio.NewScanner(input), output}
 }
 

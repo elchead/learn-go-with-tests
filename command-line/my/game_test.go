@@ -41,3 +41,27 @@ func TestGame(t *testing.T) {
 	})
 
 }
+
+func assertScheduledAlert(t testing.TB, got, want alert) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %+v, want %+v", got, want)
+	}
+}
+
+type alert struct {
+	time   time.Duration
+	amount int
+}
+
+func (s alert) String() string {
+	return fmt.Sprintf("%d chips at %v", s.amount, s.time)
+}
+
+type SpyBlindAlerter struct {
+	alerts []alert
+}
+
+func (s *SpyBlindAlerter) ScheduleAlertAt(at time.Duration, amount int) {
+	s.alerts = append(s.alerts, alert{at, amount})
+}
