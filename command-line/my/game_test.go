@@ -12,8 +12,8 @@ import (
 func TestGame(t *testing.T) {
 	store := &poker.StubPlayerStore{}
 	blindAlerter := &SpyBlindAlerter{}
-	players := 7
 	game := poker.NewGame(store, blindAlerter)
+	players := 7
 	game.Start(players)
 	cases := []alert{
 		{0 * time.Second, 100},
