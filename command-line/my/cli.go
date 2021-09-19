@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"strings"
+	"time"
 )
 
 type CLI struct {
@@ -11,7 +12,12 @@ type CLI struct {
 	in    *bufio.Scanner
 }
 
-func NewCLI(store PlayerStore, input io.Reader) *CLI {
+type Alerter interface {
+	ScheduleAlertAt(duration time.Duration, amount int)
+}
+
+func NewCLI(store PlayerStore, input io.Reader, alerter Alerter) *CLI {
+	alerter.ScheduleAlertAt(10*time.Second, 10)
 	return &CLI{store, bufio.NewScanner(input)}
 }
 
