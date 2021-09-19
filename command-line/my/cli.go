@@ -13,7 +13,8 @@ import (
 var PlayerPrompt string = "Please enter the number of players: "
 
 type CLI struct {
-	store   PlayerStore
+	store PlayerStore
+	// game    Game
 	in      *bufio.Scanner
 	out     io.Writer
 	alerter Alerter
@@ -53,5 +54,5 @@ func (c *CLI) PlayPoker() {
 		log.Fatal(err)
 	}
 	c.scheduleBlindAlerts(numberPlayers)
-	c.store.RecordWin(extractWinner(c.readLine())) // TODO fix other tests
+	c.store.RecordWin(extractWinner(c.readLine()))
 }
