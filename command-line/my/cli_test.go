@@ -12,8 +12,8 @@ import (
 func TestCLI(t *testing.T) {
 	in := strings.NewReader("Chris wins\n")
 	store := &poker.StubPlayerStore{}
-	blindAlerter := &SpyBlindAlerter{}
-	cli := poker.NewCLI(store, in, blindAlerter)
+	dummyAlerter := &SpyBlindAlerter{}
+	cli := poker.NewCLI(store, in, dummyAlerter)
 	cli.PlayPoker()
 	assert.Equal(t, 1, len(store.WinCalls))
 	assert.Equal(t, "Chris", store.WinCalls[0])
@@ -26,6 +26,7 @@ func TestTime(t *testing.T) {
 		playerStore := &poker.StubPlayerStore{}
 		blindAlerter := &SpyBlindAlerter{}
 		cli := poker.NewCLI(playerStore, in, blindAlerter)
+		assert.Equal(t, 0, len(blindAlerter.alerts))
 		cli.PlayPoker()
 		assert.Equal(t, 1, len(blindAlerter.alerts))
 	})

@@ -8,8 +8,9 @@ import (
 )
 
 type CLI struct {
-	store PlayerStore
-	in    *bufio.Scanner
+	store   PlayerStore
+	in      *bufio.Scanner
+	alerter Alerter
 }
 
 type Alerter interface {
@@ -17,8 +18,7 @@ type Alerter interface {
 }
 
 func NewCLI(store PlayerStore, input io.Reader, alerter Alerter) *CLI {
-	alerter.ScheduleAlertAt(10*time.Second, 10)
-	return &CLI{store, bufio.NewScanner(input)}
+	return &CLI{store, bufio.NewScanner(input), alerter}
 }
 
 func extractWinner(userInput string) string {
@@ -31,5 +31,6 @@ func (cli *CLI) readLine() string {
 }
 
 func (c *CLI) PlayPoker() {
+	c.alerter.ScheduleAlertAt(10*time.Second, 10)
 	c.store.RecordWin(extractWinner(c.readLine()))
 }
