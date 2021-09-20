@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGETPlayers(t *testing.T) {
@@ -98,5 +100,14 @@ func TestLeague(t *testing.T) {
 		assertLeague(t, got, wantedLeague)
 		assertContentType(t, response, jsonContentType)
 
+	})
+	t.Run("return game", func(t *testing.T) {
+		wantedLeague := []Player{}
+		store := StubPlayerStore{nil, nil, wantedLeague}
+		server := NewPlayerServer(&store)
+		req, _ := http.NewRequest(http.MethodGet, "/game", nil)
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, req)
+		assert.Equal(t, http.StatusOK, response.Code)
 	})
 }
