@@ -25,11 +25,15 @@ type Player struct {
 	Wins int
 }
 
+var wsUpgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
 // PlayerServer is a HTTP interface for player information.
 type PlayerServer struct {
 	store PlayerStore
 	http.Handler
-	upgrader websocket.Upgrader
 	template *template.Template
 	game     Gamer
 }
@@ -46,10 +50,6 @@ func NewPlayerServer(store PlayerStore, game Gamer) *PlayerServer {
 	}
 	p.template = tmpl
 	p.store = store
-	p.upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
 	p.game = game
 
 	router := http.NewServeMux()
@@ -62,15 +62,35 @@ func NewPlayerServer(store PlayerStore, game Gamer) *PlayerServer {
 	return p
 }
 
-func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
+type playerServerWS struct {
+	*websocket.Conn
+}
 
-	conn, _ := p.upgrader.Upgrade(w, r, nil)
-	// _, winnerMsg, _ := conn.ReadMessage()
-	_, numberOfPlayersMsg, _ := conn.ReadMessage()
+func newPlayerServerWS(w http.ResponseWriter, r *http.Request) *playerServerWS {
+	conn, err := wsUpgrader.Upgrade(w, r, nil)
+
+	if err != nil {
+		log.Printf("problem upgrading connection to WebSockets %v\n", err)
+	}
+
+	return &playerServerWS{conn}
+}
+
+func (w *playerServerWS) WaitForMsg() string {
+	_, msg, err := w.ReadMessage()
+	if err != nil {
+		log.Printf("error reading from websocket %v\n", err)
+	}
+	return string(msg)
+}
+
+func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
+	ws := newPlayerServerWS(w, r)
+	numberOfPlayersMsg := ws.WaitForMsg()
 	numberOfPlayers, _ := strconv.Atoi(string(numberOfPlayersMsg))
 	p.game.Start(numberOfPlayers, w)
 
-	_, winner, _ := conn.ReadMessage()
+	winner := ws.WaitForMsg()
 	p.game.Finish(string(winner))
 	p.store.RecordWin(string(winner))
 }
