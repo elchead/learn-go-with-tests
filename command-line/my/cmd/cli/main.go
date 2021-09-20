@@ -19,5 +19,5 @@ func main() {
 	}
 
 	alerter := poker.BlindAlerterFunc(poker.Alerter)
-	poker.NewCLI(poker.NewGame(store, alerter), os.Stdin, os.Stdout).PlayPoker()
+	poker.NewCLI(poker.NewTexasHoldem(store, alerter), os.Stdin, os.Stdout).PlayPoker()
 }

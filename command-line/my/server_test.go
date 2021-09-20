@@ -17,11 +17,17 @@ type SpyGame struct {
 	Name       string
 	NumPlayers int
 	WasStarted bool
+
+	BlindAlert []byte
+
+	FinishedCalled     bool
+	FinishedCalledWith int
 }
 
 func (s *SpyGame) Start(numberOfPlayers int, to io.Writer) {
 	s.NumPlayers = numberOfPlayers
 	s.WasStarted = true
+	to.Write(s.BlindAlert)
 }
 
 func (s *SpyGame) Finish(name string) {
@@ -153,8 +159,9 @@ func TestLeague(t *testing.T) {
 		time.Sleep(10 * time.Millisecond) // the request is now a real server and async!
 		assertPlayerWin(t, store, winner)
 	})
-	t.Run("start a game with 3 players and declare Ruth the winner", func(t *testing.T) {
-		game := &SpyGame{}
+	t.Run("start a game with 3 players, send some blind alerts down WS and declare Ruth the winner", func(t *testing.T) {
+		wantedBlindAlert := "Blind is 100"
+		game := &SpyGame{BlindAlert: []byte(wantedBlindAlert)}
 		winner := "Ruth"
 		server := httptest.NewServer(NewPlayerServer(dummyPlayerStore, game))
 		ws := mustDialWS(t, "ws"+strings.TrimPrefix(server.URL, "http")+"/ws")
@@ -168,9 +175,28 @@ func TestLeague(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 		assert.Equal(t, 3, game.NumPlayers)
 		assert.Equal(t, winner, game.Name)
-		// assertGameStartedWith(t, game, 3)
-		// assertFinishCalledWith(t, game, winner)
+
+		within(t, 3*time.Second, func() { assertWebsocketGotMsg(t, ws, wantedBlindAlert) })
 	})
+}
+
+func assertWebsocketGotMsg(t *testing.T, ws *websocket.Conn, want string) {
+	_, msg, _ := ws.ReadMessage()
+	assert.Equal(t, string(msg), want)
+}
+
+func within(t testing.TB, d time.Duration, assert func()) {
+	t.Helper()
+	done := make(chan struct{}, 1)
+	go func() {
+		assert()
+		done <- struct{}{}
+	}()
+	select {
+	case <-time.After(d):
+		t.Error("timed out")
+	case <-done:
+	}
 }
 
 func writeWSMessage(t testing.TB, conn *websocket.Conn, message string) {
