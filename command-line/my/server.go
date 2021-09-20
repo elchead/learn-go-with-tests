@@ -3,6 +3,7 @@ package poker
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"text/template"
@@ -27,6 +28,8 @@ type Player struct {
 type PlayerServer struct {
 	store PlayerStore
 	http.Handler
+	upgrader websocket.Upgrader
+	template *template.Template
 }
 
 const jsonContentType = "application/json"
@@ -35,7 +38,16 @@ const jsonContentType = "application/json"
 func NewPlayerServer(store PlayerStore) *PlayerServer {
 	p := new(PlayerServer)
 
+	tmpl, err := template.ParseFiles("game.html")
+	if err != nil {
+		log.Fatal("Failed to load template")
+	}
+	p.template = tmpl
 	p.store = store
+	p.upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
 
 	router := http.NewServeMux()
 	router.Handle("/ws", http.HandlerFunc(p.webSocket))
@@ -48,23 +60,13 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
-	upgrader := websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-	conn, _ := upgrader.Upgrade(w, r, nil)
+
+	conn, _ := p.upgrader.Upgrade(w, r, nil)
 	_, winnerMsg, _ := conn.ReadMessage()
 	p.store.RecordWin(string(winnerMsg))
 }
 func (p *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
-	// w.WriteHeader(http.StatusOK)
-	tmpl, err := template.ParseFiles("game.html")
-	if err != nil {
-		http.Error(w, fmt.Sprintf("problem loading template %s", err.Error()), http.StatusInternalServerError)
-		return
-	}
-
-	tmpl.Execute(w, nil)
+	p.template.Execute(w, nil)
 }
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {

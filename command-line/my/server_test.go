@@ -117,12 +117,17 @@ func TestLeague(t *testing.T) {
 		}
 		defer ws.Close()
 
-		if err := ws.WriteMessage(websocket.TextMessage, []byte(winner)); err != nil {
-			t.Fatalf("could not send message over ws connection %v", err)
-		}
+		writeWSMessage(t, ws, winner)
 		time.Sleep(10 * time.Millisecond) // the request is now a real server and async!
 		assertPlayerWin(t, store, winner)
 	})
+}
+
+func writeWSMessage(t testing.TB, conn *websocket.Conn, message string) {
+	t.Helper()
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
+		t.Fatalf("could not send message over ws connection %v", err)
+	}
 }
 
 func assertPlayerWin(t *testing.T, store *StubPlayerStore, player string) {
