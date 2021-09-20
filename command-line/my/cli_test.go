@@ -2,6 +2,7 @@ package poker_test
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 
@@ -15,7 +16,7 @@ type SpyGame struct {
 	WasStarted bool
 }
 
-func (s *SpyGame) Start(numberOfPlayers int) {
+func (s *SpyGame) Start(numberOfPlayers int, to io.Writer) {
 	s.NumPlayers = numberOfPlayers
 	s.WasStarted = true
 }

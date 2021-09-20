@@ -15,11 +15,6 @@ var PlayerPrompt string = "Please enter the number of players: "
 
 var BadPlayerInputErrMsg string = "Could not parse number of players"
 
-type Gamer interface {
-	Start(numberPlayers int)
-	Finish(name string)
-}
-
 type CLI struct {
 	game Gamer
 	in   *bufio.Scanner
@@ -49,7 +44,7 @@ func (c *CLI) PlayPoker() error {
 	if err != nil {
 		return errors.New(BadPlayerInputErrMsg)
 	}
-	c.game.Start(numberPlayers)
+	c.game.Start(numberPlayers, c.out)
 	winner, err := extractWinner(c.readLine())
 	if err != nil {
 		return err

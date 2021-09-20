@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -30,12 +31,13 @@ type PlayerServer struct {
 	http.Handler
 	upgrader websocket.Upgrader
 	template *template.Template
+	game     Gamer
 }
 
 const jsonContentType = "application/json"
 
 // NewPlayerServer creates a PlayerServer with routing configured.
-func NewPlayerServer(store PlayerStore) *PlayerServer {
+func NewPlayerServer(store PlayerStore, game Gamer) *PlayerServer {
 	p := new(PlayerServer)
 
 	tmpl, err := template.ParseFiles("game.html")
@@ -48,6 +50,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
+	p.game = game
 
 	router := http.NewServeMux()
 	router.Handle("/ws", http.HandlerFunc(p.webSocket))
@@ -62,8 +65,14 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
 
 	conn, _ := p.upgrader.Upgrade(w, r, nil)
-	_, winnerMsg, _ := conn.ReadMessage()
-	p.store.RecordWin(string(winnerMsg))
+	// _, winnerMsg, _ := conn.ReadMessage()
+	_, numberOfPlayersMsg, _ := conn.ReadMessage()
+	numberOfPlayers, _ := strconv.Atoi(string(numberOfPlayersMsg))
+	p.game.Start(numberOfPlayers, w)
+
+	_, winner, _ := conn.ReadMessage()
+	p.game.Finish(string(winner))
+	p.store.RecordWin(string(winner))
 }
 func (p *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
 	p.template.Execute(w, nil)

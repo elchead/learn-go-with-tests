@@ -1,29 +1,33 @@
 package poker
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
-type Alerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
+type Gamer interface {
+	Start(numberPlayers int, alertsDestination io.Writer)
+	Finish(name string)
 }
-type Game struct {
+type TexasHoldem struct {
 	store   PlayerStore
-	alerter Alerter
+	alerter BlindAlerter
 }
 
-func NewGame(store PlayerStore, blind Alerter) *Game {
-	return &Game{store, blind}
+func NewGame(store PlayerStore, blind BlindAlerter) *TexasHoldem {
+	return &TexasHoldem{store, blind}
 }
 
-func (g *Game) Start(numberPlayers int) {
+func (g *TexasHoldem) Start(numberPlayers int, alertsDestination io.Writer) {
 	blindIncrement := time.Duration(5+numberPlayers) * time.Minute
 	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
 	blindTime := 0 * time.Second
 	for _, blind := range blinds {
-		g.alerter.ScheduleAlertAt(blindTime, blind)
+		g.alerter.ScheduleAlertAt(blindTime, blind, alertsDestination)
 		blindTime = blindTime + blindIncrement
 	}
 }
 
-func (g *Game) Finish(name string) {
+func (g *TexasHoldem) Finish(name string) {
 	g.store.RecordWin(name)
 }
