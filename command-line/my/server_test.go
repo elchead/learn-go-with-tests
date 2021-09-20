@@ -3,8 +3,11 @@ package poker
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -101,13 +104,28 @@ func TestLeague(t *testing.T) {
 		assertContentType(t, response, jsonContentType)
 
 	})
-	t.Run("return game", func(t *testing.T) {
-		wantedLeague := []Player{}
-		store := StubPlayerStore{nil, nil, wantedLeague}
-		server := NewPlayerServer(&store)
-		req, _ := http.NewRequest(http.MethodGet, "/game", nil)
-		response := httptest.NewRecorder()
-		server.ServeHTTP(response, req)
-		assert.Equal(t, http.StatusOK, response.Code)
+	t.Run("when we get a msg over a websocket it is  a winner of a game", func(t *testing.T) {
+		store := &StubPlayerStore{}
+		winner := "Ruth"
+		server := httptest.NewServer(NewPlayerServer(store))
+		defer server.Close()
+		wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
+
+		ws, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		if err != nil {
+			t.Fatalf("could not open a ws connection on %s %v", wsURL, err)
+		}
+		defer ws.Close()
+
+		if err := ws.WriteMessage(websocket.TextMessage, []byte(winner)); err != nil {
+			t.Fatalf("could not send message over ws connection %v", err)
+		}
+		time.Sleep(10 * time.Millisecond) // the request is now a real server and async!
+		assertPlayerWin(t, store, winner)
 	})
+}
+
+func assertPlayerWin(t *testing.T, store *StubPlayerStore, player string) {
+	assert.Equal(t, 1, len(store.WinCalls))
+	assert.Equal(t, player, store.WinCalls[0])
 }
