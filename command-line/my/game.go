@@ -14,7 +14,7 @@ type TexasHoldem struct {
 	alerter BlindAlerter
 }
 
-func NewGame(store PlayerStore, blind BlindAlerter) *TexasHoldem {
+func NewTexasHoldem(store PlayerStore, blind BlindAlerter) *TexasHoldem {
 	return &TexasHoldem{store, blind}
 }
 

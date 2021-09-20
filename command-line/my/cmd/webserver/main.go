@@ -15,7 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer closeDb()
-	server := poker.NewPlayerServer(store)
+	game := poker.NewTexasHoldem(store, poker.BlindAlerterFunc(poker.Alerter))
+	server := poker.NewPlayerServer(store, game)
 
 	log.Fatal(http.ListenAndServe(":5000", server))
 }
